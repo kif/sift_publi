@@ -1,0 +1,50 @@
+Image registration and alignment algorithm for synchrotron applications
+
+
+Image alignment has been requested by many synchrotron beamlines for
+various techniques
+To address this need we developped a parallel version of the SIFT algorithm
+for image registration working both on multi-core system and on graphics cards
+and interfaced in Python, a free scripting language very popular among
+scientists. This high performance computing library complements the toolbox
+based on NumPy\cite{numpy}, SciPy\cite{scipy} and skimage\cite{skimage} 
+ 
+1) Scientific applications for image alignment
+
+1.1 CXDI
+1.2 Full-Field X-ray absorption spectroscopy (FFXAS) 
+
+2) Scale Invariant feature transform
+
+2.1 Choice of the algorithm
+While phase correlation has intensively been used during the development of
+FFXAS for image alignment, this algorithm is limited to translation and turned
+out to be very sensitive to artifacts, among those: difference of intensity on
+the image border, defects on the syntillator or on the camera\ldots 
+Those defect could be corrected by some clever and sample specific
+pre-processing (i.e. apodisation of the signal on the borders).
+
+The SIFT algorithm \cite{Lowe1999,Lowe2004} which has been developped
+for image registration and widely used for panoramic image stitching has beed
+adapted from the IPOL\cite{ASIFT} implementation. Image alignment obtained in
+FFXAS were similar in qualty to phase corelation with a better robustness to
+artefacts. Moreover keypoints in some defective region of the image can be
+discarded easily using a mask.
+
+
+2.2 how it works
+
+
+3) 
+While the phase correlation algorithm has been easily ported on graphics card
+thanks to PyCUDA and cuFFT, hence very fast for online data
+pre-processing; 
+the SIFT algorithm is much more complicated and the implementation available was
+single threaded.
+
+3.1 Parallelization of the algorithm
+
+3.2   
+
+Perspectives: 
+Work on sift3D
