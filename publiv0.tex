@@ -10,7 +10,7 @@
 \begin{document}
 
 
-\title{SIFT\_PyOCL : an implementation of SIFT in OpenCL}
+\title{Image registration and alignment algorithm for synchrotron applications}
 \shorttitle{SIFT\_PyOCL}
 
     \author[a]{Jerome}{Kieffer}
@@ -28,13 +28,23 @@ An OpenCL implementation of Scale-Invariant Feature Transform for image alignmen
 \end{synopsis}
 
 \begin{abstract}
-SIFT\_PyOCL is a Python module for fast image alignment, using the Scale-Invariant Feature Transform. The parallel implementation enables crucial speed-ups while being adaptable to various setups. The code can be executed on different platforms, including graphic cards, multi-core processors and accelerators.
+Image alignment has been requested by many synchrotron beamlines for
+various techniques.
+To address this need we developped a parallel version of the SIFT algorithm
+for image registration working both on multi-core system and on graphics cards
+and interfaced in Python, a free scripting language very popular among
+scientists. This high performance computing library complements the toolbox
+based on NumPy\cite{numpy}, SciPy\cite{scipy} and skimage\cite{skimage} 
+
+%SIFT\_PyOCL is a Python module for fast image alignment, using the Scale-Invariant Feature Transform.
+%The parallel implementation enables crucial speed-ups while being adaptable to various setups.
+%The code can be executed on different platforms, including graphic cards, multi-core processors and accelerators.
  
 \end{abstract}
 
 \section{Introduction}
 
-\section{Image alignment for synchrotron}
+\section{Scientific applications for image alignment}
 In various experiments, image alignment is required in data pre-processing.
 \subsection{Coherent diffraction imaging}
 
@@ -51,23 +61,118 @@ Since the flat field images are not acquired simultaneously with the sample tran
 %SIFT can be adapted to various setups
 %importance de la vitesse ... necessite de la parallelisation
 %algo brevete aux US, mais libre utilisation pour la recherche
-Phase correlation was used and efficient to correct translations, but had some failure cases. For example, when sticky tape was put on a sample, the alignment was done on the borders rather than on the sample. Therefore, a more robust method had to be used.
+\subsection{Choice of the registration algorithm}
+While phase correlation has intensively been used during the development of
+FFXAS for image alignment, this algorithm is limited to translation and turned
+out to be very sensitive to artifacts, among those: difference of intensity on
+the image border, defects on the syntillator or on the camera\ldots 
+Those defect could be corrected by some clever and sample specific
+pre-processing (i.e. apodisation of the signal on the borders).
 
-The Scale Invariant Feature Transform\cite{lowe2004} (SIFT) uses control points to align images, making it much more versatile than phase correlation. Currently used on the ESRF beamline ID21, it takes about 8 seconds per frame, and one stack can have up to 500 frames. Although the process is distributed on the EDNA\cite{edna} framework, the performance limits are reached. Image alignment is a crucial step in data pre-processing, hence the importance of accelerating it to ensure a fast data rate.
+The The Scale Invariant Feature Transform (SIFT) algorithm \cite{Lowe99,Lowe04} which has been developped
+for image registration and widely used for panoramic image stitching has beed
+adapted from the IPOL\cite{ASIFT} implementation. It uses control points to align images, making it much more versatile than phase correlation. Image alignment obtained in
+FFXAS were similar in qualty to phase corelation with a better robustness to
+artefacts. Moreover keypoints in some defective region of the image can be
+discarded easily using a mask.
 
-With the advent of high-performance GPU computing, many scientific data analysis programs were accelerated (\cite{pyfai}, \cite{Favre-Nicolin}). %TODO : more
+Currently used on the ESRF beamline ID21, it takes about 8 seconds per frame, and one stack can have up to 500 frames. Although the process is distributed on the EDNA\cite{edna} framework, the performance limits are reached. Image alignment is a crucial step in data pre-processing, hence the importance of accelerating it to ensure a fast data rate.
+
+With the advent of high-performance GPU computing, many scientific data analysis programs were accelerated \cite{pyhst,pyfai,Favre-Nicolin}. %TODO : more
+
+%Phase correlation was used and efficient to correct translations, but had some failure cases.
+%For example, when sticky tape was put on a sample, the alignment was done on the borders rather than on the sample. 
+%Therefore, a more robust method had to be used.
+\subsection{SIFT algorithm overview}
+%how it works
+SIFT is an algorithm in computer-vision which can be used for image alignment and pattern recognition. The keypoints are detected in several steps according to Lowe's paper\cite{Lowe99}.
+%:\begin{itemize}
+%%\setlength{\itemsep}{1pt}\setlength{\parskip}{0pt}\setlength{\parsep}{0pt}
+%\item Keypoints detection: local extrema are detected in the \textit{scale-space} $(x, y, s)$. Every pixel is compared to its neighborhood in the image itself, and in the previous/next scale factor images. 
+%\item Keypoints refinement: keypoints located on corners are discarded. Additionaly, a second-order interpolation is done to improve the keypoints accuracy, modifying the coordinates $(x, y, s)$.
+%\item Orientation assignment: a characteristic orientation is assigned to the keypoints $(x,y,s, \theta)$
+%\item Descriptor computation: a histogram of orientations is built around every keypoint, then concatenated in a 128-values vector. This vector is called \textit{SIFT descriptor}, it is robust to rotation, illumination, translation and scaling.
+%\end{itemize}
+The scale variation is simulated by blurring the image. A very blurred image represents a scene seen from a distance, for small details are not visible. 
+
+%Unlike existing parallel versions of SIFT, the entire process is done on the device to avoid time-consuming transfers between CPU and GPU. This leads to several subtle parts like the use of atomic instructions, or writing different versions of the same kernel to adapt to various platforms.
+
+\subsubsection{Keypoints detection}
+The image is increasingly blurred to imitate the scale variations. This is done by convolving by a gaussian kernel. Then, consecutives blurs are substracted to get differences of gaussians (DoG). In these DoG, every pixel is tested. The pixel has a position $(x,y)$ in the current (blurred) image, and a \textit{scale} (that is, the blur factor) $s$.
+%The point :$(x,y,s)$ is a local maximum in the scale-space if\begin{itemize}
+%\setlength{\itemsep}{1pt}
+%\setlength{\parskip}{0pt}
+%\setlength{\parsep}{0pt}
+%\item $D(x-1, y, s) < D(x,y,s)$ and $D(x,y,s) > D(x+1, y, s)$ (local maximum in $x$)
+%\item $D(x, y-1, s) < D(x,y,s)$ and $D(x,y,s) > D(x, y+1, s)$ (local maximum in $y$)
+%\item $D(x, y, s -1) < D(x,y,s)$ and $D(x,y,s) > D(x, y, s+1)$ (local maximum in $s$)
+%\end{itemize}
+%\pic{0.7}{img/dog1.png}{Detection in scale-space (source: en.wikipedia.org)}
+
+%For these steps, we highly benefit from the parallelism : every pixel is handled by a GPU thread. Besides, convolution is implemented in the direct space (without FT) and is quite fast: 50 times faster than the convolutions done by the C++ reference implementation%\cite{ipol}.
+
+\subsubsection{Keypoints refinement}
+At this stage, many keypoints are not reliable. Low-contrast keypoints are discarded, and keypoints located on an edge are rejected as well. For keypoints located on an edge, principal curvature across the edge is much larger than the principal curvature along it. The eigenvalues ratio $r$ of the Hessian matrix of the current DoG is compared to a threshold $\frac{(r+1)^2}{r} < R$.
+
+To improve keypoints accuracy, the coordinates are interpolated with a second-order Taylor development.
+%\[
+% D \left( \vec{x} + \vec{\delta_x} \right) \simeq D + \frac{\partial D}{\partial \vec{x}} \cdot \vec{\delta_x} + \frac{1}{2} \left( \vec{\delta_x} \right)^T \cdot \left( H \right) \cdot \vec{\delta_x} \qquad \text{with } H = \frac{\partial^2 D}{\partial \vec{x}^2}
+%\]
+Keypoints that were too far from a true (interpolated) extremum are rejected.
 
 
+\subsubsection{Orientation assignment}
+An orientation has to be assigned to each keypoint so that SIFT descriptors will be invariant to rotation. For each blurred version of the image, the gradient magnitude and orientation are computed. From the neighborhood of a keypoint, a histogram of orientations is built (36 bins, 1 bin per 10 degrees).
+%\pic{0.7}{img/orientation.png}{Orientation assignment}
 
+The maximum value of this histogram is the dominant orientation ; it is defined as the characteristic orientation of the keypoint. Additionaly, every peak greater than 80\% of the maximum generates a new keypoint with a different orientation.
 
-Python \cite{python} is a scripting language that is very popular among scientists
-and which also allows well structured applications and libraries to be developed.
+%The parallel implementation of this step is complex, and the performances strongly depend on the graphic card the program is running on. That is why there are different files for this kernel, adapted for different platforms. The file to compile is automatically determined in \textit{plan.py}.
 
+\subsubsection{Descriptor computation}
+A histogram of orientations is built around every keypoint. The neighborhood is divided into 4 regions of 4 subregions of 4x4 pixels. In every subregion, a 8-bin histogram is computed ; then, all the histograms are concatenated in a 128-values descriptor. The histogram is weighted by the gradient magnitudes and the current scale factor, so that the descriptor is robust to rotation, illumination, translation and scaling.% Here again, there are several files adapted to different platforms.
 
+\section{Implementation}
+While the phase correlation algorithm has been easily ported on graphics card
+thanks to PyCUDA and cuFFT, hence very fast for online data
+pre-processing; 
+the SIFT algorithm is much more complicated and the implementation available was
+single threaded.
 
+\subsection{Parallelization of the algorithm}
+SIFT\_PyOCL kernels were written in Open Computing Language\cite{opencl} (OpenCL) so it can be run on various devices like GPU, multi-core CPU and accelerators. They are launched from a Python module using PyOpenCL\cite{pyopencl}, which provides both speed and code readability. The SIFT algorithm is used to align images with descriptors. Once the descriptors of the two images are computed, a least-squares method is used to determine the transformation aligning one image on the other.
+All the steps, from descriptor computation to images alignment, are done on the device to benefit from its parallelism.
+
+\subsection{Instalation and usage}
+\emph{Sift\_pyocl} can, as any Python module, be installed from its sources,
+available on github:
+\verb|https://github.com/kif/sift_pyocl/archive/master.zip|
+While \emph{SIFT\_pyocl} is open source and licensed under a very
+permissive BSD license; one should notice the SIFT algorithm itself is
+patented by the Univerity of Columbia\cite{SIFT}; neverthless this patent does
+not apply in Europe. %furthermore, the patent allows any usage of SIFT for research purposes.
+
+Beside Python (version 2.6 or 2.7) and NumPy, \emph{Sift\_pyocl} needs
+PyOpenCL\cite{pyopencl}.
+It was tested with the OpenCL\cite{opencl} driver from Nvidia on a
+large variete of their GPUs and on multi-core processors with the driver from
+Intel and AMD. The full installation procedure with testing is simply:
+\emph{python setup.py build test install}
+
+\section{outlook}
+
+Registration of 3-dimentional object would have a huge application, especially
+in the field of tomography and medial images; this field of reseach is very
+active in applied mathematics and computer vision.
+
+Use the difference of gaussian method on a pyramid could help in auto-calibation
+of powder diffraction images 
+
+\section{Conclusion}
 
 \ack{Acknowledgements}
-
+Marine Cotte and Barbara Fayard
+Claudio Ferrero and Andy G\"otz
 
 
 
