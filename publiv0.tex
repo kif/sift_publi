@@ -95,7 +95,7 @@ SIFT is an algorithm in computer-vision which can be used for image alignment an
 %\end{itemize}
 The scale variation is simulated by blurring the image. A very blurred image represents a scene seen from a distance, for small details are not visible. 
 
-%Unlike existing parallel versions of SIFT, the entire process is done on the device to avoid time-consuming transfers between CPU and GPU. This leads to several subtle parts like the use of atomic instructions, or writing different versions of the same kernel to adapt to various platforms.
+
 
 \subsubsection{Keypoints detection}
 The image is increasingly blurred to imitate the scale variations. This is done by convolving by a gaussian kernel. Then, consecutives blurs are substracted to get differences of gaussians (DoG). In these DoG, every pixel is tested. The pixel has a position $(x,y)$ in the current (blurred) image, and a \textit{scale} (that is, the blur factor) $s$.
@@ -109,7 +109,7 @@ The image is increasingly blurred to imitate the scale variations. This is done 
 %\end{itemize}
 %\pic{0.7}{img/dog1.png}{Detection in scale-space (source: en.wikipedia.org)}
 
-%For these steps, we highly benefit from the parallelism : every pixel is handled by a GPU thread. Besides, convolution is implemented in the direct space (without FT) and is quite fast: 50 times faster than the convolutions done by the C++ reference implementation%\cite{ipol}.
+
 
 \subsubsection{Keypoints refinement}
 At this stage, many keypoints are not reliable. Low-contrast keypoints are discarded, and keypoints located on an edge are rejected as well. For keypoints located on an edge, principal curvature across the edge is much larger than the principal curvature along it. The eigenvalues ratio $r$ of the Hessian matrix of the current DoG is compared to a threshold $\frac{(r+1)^2}{r} < R$.
@@ -127,10 +127,10 @@ An orientation has to be assigned to each keypoint so that SIFT descriptors will
 
 The maximum value of this histogram is the dominant orientation ; it is defined as the characteristic orientation of the keypoint. Additionaly, every peak greater than 80\% of the maximum generates a new keypoint with a different orientation.
 
-%The parallel implementation of this step is complex, and the performances strongly depend on the graphic card the program is running on. That is why there are different files for this kernel, adapted for different platforms. The file to compile is automatically determined in \textit{plan.py}.
+
 
 \subsubsection{Descriptor computation}
-A histogram of orientations is built around every keypoint. The neighborhood is divided into 4 regions of 4 subregions of 4x4 pixels. In every subregion, a 8-bin histogram is computed ; then, all the histograms are concatenated in a 128-values descriptor. The histogram is weighted by the gradient magnitudes and the current scale factor, so that the descriptor is robust to rotation, illumination, translation and scaling.% Here again, there are several files adapted to different platforms.
+A histogram of orientations is built around every keypoint. The neighborhood is divided into 4 regions of 4 subregions of 4x4 pixels. In every subregion, a 8-bin histogram is computed ; then, all the histograms are concatenated in a 128-values descriptor. The histogram is weighted by the gradient magnitudes and the current scale factor, so that the descriptor is robust to rotation, illumination, translation and scaling.
 
 \section{Implementation}
 While the phase correlation algorithm has been easily ported on graphics card
@@ -141,7 +141,15 @@ single threaded.
 
 \subsection{Parallelization of the algorithm}
 SIFT\_PyOCL kernels were written in Open Computing Language\cite{opencl} (OpenCL) so it can be run on various devices like GPU, multi-core CPU and accelerators. They are launched from a Python module using PyOpenCL\cite{pyopencl}, which provides both speed and code readability. The SIFT algorithm is used to align images with descriptors. Once the descriptors of the two images are computed, a least-squares method is used to determine the transformation aligning one image on the other.
-All the steps, from descriptor computation to images alignment, are done on the device to benefit from its parallelism.
+%All the steps, from descriptor computation to images alignment, are done on the device to benefit from its parallelism.
+
+Unlike existing parallel versions of SIFT\cite{lu,rister,vasilyev}, the entire process is done on the device to avoid time-consuming transfers between CPU and GPU. This leads to several subtle parts like the use of atomic instructions, or writing different versions of the same kernel to adapt to various platforms.
+
+The first steps of the algorithm (keypoints detection and refinement) did not raise particular difficulty. For these steps, we highly benefit from the device parallelism : every pixel is handled by a GPU thread. Besides, convolution is implemented in the direct space (without FT) and can be up to 50 times faster than the convolutions done by the C++ reference implementation. A pyramid is used to represent the image in scale-space\cite{Lowe04}.
+
+The parallel implementation of the last steps (orientation assignment and descriptors computation) was more complex. For a given kernel, the performances strongly depend on the graphic card the program is running on ; that is why there are different files for these kernels, adapted for different platforms. The OpenCL file to compile is automatically determined by the Python module.
+
+
 
 \subsection{Instalation and usage}
 \emph{Sift\_pyocl} can, as any Python module, be installed from its sources,
@@ -155,7 +163,7 @@ not apply in Europe. %furthermore, the patent allows any usage of SIFT for resea
 Beside Python (version 2.6 or 2.7) and NumPy, \emph{Sift\_pyocl} needs
 PyOpenCL\cite{pyopencl}.
 It was tested with the OpenCL\cite{opencl} driver from Nvidia on a
-large variete of their GPUs and on multi-core processors with the driver from
+large variety of their GPUs and on multi-core processors with the driver from
 Intel and AMD. The full installation procedure with testing is simply:
 \emph{python setup.py build test install}
 
