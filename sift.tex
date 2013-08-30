@@ -1,28 +1,75 @@
-Image registration and alignment algorithm for synchrotron applications
+\documentclass[preprint]{iucr}
+ \papertype{CP}
+ \journalcode{S}
 
+
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+\begin{document}
+
+
+\title{SIFT\_PyOCL : an implementation of SIFT in OpenCL}
+\shorttitle{SIFT\_PyOCL}
+
+    \author[a]{Pierre}{Paleo}
+    \author[a]{Emeline}{Pouyet}
+    \cauthor[a]{J\'er\^ome}{Kieffer}{jerome.kieffer@esrf,fr}{}
+    \aff[a]{European Synchrotron Radiation Facility, \city{Grenoble}, \country{France}}
+    \shortauthor{Paleo et Kieffer}
+
+\maketitle
+
+\begin{synopsis}
+An Python-OpenCL implementation of Scale-Invariant Feature Transform for image
+alignment
+\end{synopsis}
+
+\begin{abstract}
+SIFT\_PyOCL is a Python module implementing a parallel version of the Scale
+Invariant Feature Transform algoritm in OpenCL, providing high-speed image
+registration and alignment both on processors and on graphics cards. 
+The sub-pixel precision measured is suitable for Full-Field X-ray
+absorption spectroscopy stack alignement and the speed allows the processing of
+such dataset online (i.e in real-time).
+ 
+\end{abstract}
+
+\section{Introduction}
 
 Image alignment has been requested by many synchrotron beamlines for
-various techniques
-To address this need we developped a parallel version of the SIFT algorithm
-for image registration working both on multi-core system and on graphics cards
+various techniques like speckle images reconstruction in the field of coherent
+X-ray diffraction imaging with module based pixel detectors or image stack
+alignement in the field of  
+
+ To address this need we developped a parallel
+version of the SIFT algorithm for image registration working both on multi-core system and on graphics cards
 and interfaced in Python, a free scripting language very popular among
 scientists. This high performance computing library complements the toolbox
-based on NumPy\cite{numpy}, SciPy\cite{scipy} and skimage\cite{skimage} 
- 
-1) Scientific applications for image alignment
+based on NumPy\cite{numpy}, SciPy\cite{scipy} and skimage\cite{skimage}. 
 
-1.1 CXDI
-1.2 Full-Field X-ray absorption spectroscopy (FFXAS) 
 
-2) Scale Invariant feature transform
+\section{Scientific applications for image alignment}
 
-2.1 Choice of the algorithm
+\subsection{Coherent X-Ray diffraction}
+
+\subsection{Full-Field X-ray absorption spectroscopy} 
+
+
 While phase correlation has intensively been used during the development of
 FFXAS for image alignment, this algorithm is limited to translation and turned
 out to be very sensitive to artifacts, among those: difference of intensity on
 the image border, defects on the syntillator or on the camera\ldots 
 Those defect could be corrected by some clever and sample specific
 pre-processing (i.e. apodisation of the signal on the borders).
+
+
+\section{Image alignemnt algorithm}
+
+\subsection{The limits of phase correation} 
+
+2.1 Choice of the algorithm
 
 The SIFT algorithm \cite{Lowe1999,Lowe2004} which has been developped
 for image registration and widely used for panoramic image stitching has beed
@@ -35,16 +82,45 @@ discarded easily using a mask.
 2.2 how it works
 
 
-3) 
+\section{Implementation}
 While the phase correlation algorithm has been easily ported on graphics card
 thanks to PyCUDA and cuFFT, hence very fast for online data
 pre-processing; 
 the SIFT algorithm is much more complicated and the implementation available was
 single threaded.
 
-3.1 Parallelization of the algorithm
+\subsection{Parallelization of the algorithm}
 
-3.2   
+\subsection{Instalation and usage}
+\textem{Sift_pyocl} can, as any Python module, be installed from its sources,
+available on github:
+https://github.com/kif/sift_pyocl/archive/master.zip 
+While \textem{Sift_pyocl} is open source and licensed under a very
+permissive BSD license; one should notice the SIFT algorithm itself is
+patented by the Univerity of Columbia\cite{SIFT}.
 
-Perspectives: 
-Work on sift3D
+
+\section{Conclusion}
+Registration of 3-dimentional object would have a huge application, especially
+in the field of tomography and medial images; this field of reseach is very
+active in applied mathematics and computer vision.
+
+
+
+
+\ack{Acknowledgements}
+
+Marine Cotte and Barbara Fayard
+Claudio Ferrero and Andy G\"otz
+
+\bibliographystyle{iucr}
+\bibliography{biblio}
+%\referencelist[biblio]
+
+
+
+\end{document}
+
+
+ 
+
