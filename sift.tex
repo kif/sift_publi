@@ -69,7 +69,7 @@ pre-processing (i.e. apodisation of the signal on the borders).
 
 \subsection{The limits of phase correation} 
 
-2.1 Choice of the algorithm
+\subsection{Choice of the registration algorithm}
 
 The SIFT algorithm \cite{Lowe1999,Lowe2004} which has been developped
 for image registration and widely used for panoramic image stitching has beed
@@ -79,7 +79,7 @@ artefacts. Moreover keypoints in some defective region of the image can be
 discarded easily using a mask.
 
 
-2.2 how it works
+\subsection{how it works}
 
 
 \section{Implementation}
@@ -97,16 +97,28 @@ available on github:
 https://github.com/kif/sift_pyocl/archive/master.zip 
 While \textem{Sift_pyocl} is open source and licensed under a very
 permissive BSD license; one should notice the SIFT algorithm itself is
-patented by the Univerity of Columbia\cite{SIFT}.
+patented by the Univerity of Columbia\cite{SIFT}; neverthless this patent does
+not apply in Europe.
+
+Beside Python (version 2.6 or 2.7) and NumPy, \textem{Sift_pyocl} needs
+PyOpenCL\cite{pyopencl}.
+It was tested with the OpenCL\cite{opencl} driver from Nvidia on a
+large variete of their GPUs and on multi-core processors with the driver from
+Intel and AMD. The full installation procedure with testing is simply:
+\textem{python setup.py build test install}
 
 
-\section{Conclusion}
+
+\section{outlook}
+
 Registration of 3-dimentional object would have a huge application, especially
 in the field of tomography and medial images; this field of reseach is very
 active in applied mathematics and computer vision.
 
+Use the difference of gaussian method on a pyramid could help in auto-calibation
+of powder diffraction images 
 
-
+\section{Conclusion}
 
 \ack{Acknowledgements}
 
