@@ -15,9 +15,7 @@
 
     \author[a]{Jerome}{Kieffer}
     \author[b]{Pierre}{Paleo}
-    %\author[c]{Jonathan P.}{Wright}
-    \author[c]{Ga\"el}{Goret}
-    \cauthor[c]{J\'er\^ome}{Kieffer}{jerome.kieffer@esrf,fr}{}
+    %\author[c]{...}{...}
     \aff[a]{European Synchrotron Radiation Facility, \city{Grenoble}, \country{France}}
     %\aff[b]{}
     %\aff[c]{European Synchrotron Radiation Facility, \city{Grenoble}, \country{France}}
@@ -30,23 +28,37 @@ An OpenCL implementation of Scale-Invariant Feature Transform for image alignmen
 \end{synopsis}
 
 \begin{abstract}
-SIFT\_PyOCL 
-
-
-FabIO is a Python module written for easy and transparent reading 
-of raw two-dimensional data from various X-ray detectors. The module provides a
-function for reading any image and returning a fabioimage object which 
-contains both metadata (header information) and the raw data.
-All fabioimage object offer additional methods to extract
-information about the image and to open other detector images from
-the same data series.
+SIFT\_PyOCL is a Python module for fast image alignment, using the Scale-Invariant Feature Transform. The parallel implementation enables crucial speed-ups while being adaptable to various setups. The code can be executed on different platforms, including graphic cards, multi-core processors and accelerators.
  
 \end{abstract}
 
 \section{Introduction}
 
+\section{Image alignment for synchrotron}
+In various experiments, image alignment is required in data pre-processing.
+\subsection{Coherent diffraction imaging}
 
-\section{FabIO Python module}
+\subsection{Full-Field XANES}
+The European Synchrotron Radiation Facility (ESRF) beamline ID21 developed a full-field method for X-ray absorption near-edge spectroscopy\cite{fullfield} (XANES). %TODO : define 'flat' ?
+%designed to perform submicronic XANES analysis in transmission mode on major elements of large samples. For each energy point across a given K- or L-edge, a magnified 2D transmission image of the sample is acquired by a camera coupled to an X-ray scintillator and magnifying visible light optics. Then, a ?flat field image? recorded with sample out of the x-ray beam is used for normalization. The vacuum-air interface is realised through a viewport inserted between the scintillator and the visible light objectives. A XANES stack consists of a series of normalized images that characterize the sample absorption across the absorption-edge of interest. The XANES spectra can then be extracted for each pixel of the image.
+Since the flat field images are not acquired simultaneously with the sample transmission images, a realignment procedure has to be performed.
+
+ 
+
+
+\section{Scale-Invariant Feature Transform}
+%while phase correlation .... need a more robust algorithm
+%SIFT can be adapted to various setups
+%importance de la vitesse ... necessite de la parallelisation
+%algo brevete aux US, mais libre utilisation pour la recherche
+Phase correlation was used and efficient to correct translations, but had some failure cases. For example, when sticky tape was put on a sample, the alignment was done on the borders rather than on the sample. Therefore, a more robust method had to be used.
+
+The Scale Invariant Feature Transform\cite{lowe2004} (SIFT) uses control points to align images, making it much more versatile than phase correlation. Currently used on the ESRF beamline ID21, it takes about 8 seconds per frame, and one stack can have up to 500 frames. Although the process is distributed on the EDNA\cite{edna} framework, the performance limits are reached. Image alignment is a crucial step in data pre-processing, hence the importance of accelerating it to ensure a fast data rate.
+
+With the advent of high-performance GPU computing, many scientific data analysis programs were accelerated (\cite{pyfai}, \cite{Favre-Nicolin}). %TODO : more
+
+
+
 
 Python \cite{python} is a scripting language that is very popular among scientists
 and which also allows well structured applications and libraries to be developed.
@@ -56,15 +68,6 @@ and which also allows well structured applications and libraries to be developed
 
 \ack{Acknowledgements}
 
-We acknowledge Andy G\"otz and Kenneth Evans for extensive testing when including
-the FabIO reader in the Fable ImageViewer \cite{fable}.
-We also thank V. Armando Sol\'e for assistance with his TiffIO reader and
-Carsten Gundlach for deployment of FabIO at the beamlines i711 and i811, 
-MAX IV and providing bug reports.
-We finally acknowledge our colleagues who have reported bugs and helped to
-improve FabIO.
-Financial support was granted by the EU 6th Framework NEST/ADVENTURE project
-TotalCryst \cite{totalcryst}.
 
 
 
