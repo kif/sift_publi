@@ -115,18 +115,35 @@ In this section we have collected some basic examples of how
 pylab\cite{matplotlib} mode.
 
 1) Extract keypoints:
-In [1]: import sift
-In [2]: import fabio 
-In [3]: img1 = fabio.open('image1.edf').data
+In [1]: import fabio 
+In [2]: img1 = fabio.open('image1.edf').data
+In [3]: import sift
 In [4]: siftplan = sift.SiftPlan(template=img1, devicetype="GPU")
 In [5]: kp1 = siftplan.keypoints(img1)
 
-The keypoint extraction took 60 ms for a 4 Mpixel image and returned a 261
-keypoint vector as a numpy array
+After having imported the FabIO\cite{fabio} module in 1, a first
+4Mpixel absorption image is read in 2. The library is loaded in 3 and the GPU is
+initialized in 4 with all memory allocated on the device. 
+In 4, the keypoint extraction took 60 ms for a
+4 Mpixel image and returned a 261 keypoint vector as a numpy array.
 
 2) Match keypoints between images
-
-
+In [6]: img2 = fabio.open('image2.edf').data
+in [7]: 
+siftplan = sift.SiftPlan(template=img11, devicetype="GPU")
+kp1 = siftplan.keypoints(img11)
+%timeit kp1 = siftplan.keypoints(img11)
+kp1
+kp1.size
+matchplan = sift.MatchPlan(devicetype="GPU")
+matchplan.match(kp1,kp1)
+m=matchplan.match(kp1,kp1)
+%timeitm=matchplan.match(kp1,kp1)
+%timeit m=matchplan.match(kp1,kp1)
+im2 = fabio.open("Ti_slow_data_0002_0055_0000_norm.edf").data
+%timeit kp2 = siftplan.keypoints(img2)
+%timeit kp2 = siftplan.keypoints(im2)
+%history
 
 3) Align an image on a reference
 
