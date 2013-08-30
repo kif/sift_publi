@@ -9,7 +9,7 @@
 
 \begin{document}
 
-
+%\title{Image registration and alignment algorithm for synchrotron applications}
 \title{SIFT\_PyOCL : an implementation of SIFT in OpenCL}
 \shorttitle{SIFT\_PyOCL}
 
@@ -17,84 +17,182 @@
     \author[a]{Emeline}{Pouyet}
     \cauthor[a]{J\'er\^ome}{Kieffer}{jerome.kieffer@esrf,fr}{}
     \aff[a]{European Synchrotron Radiation Facility, \city{Grenoble}, \country{France}}
-    \shortauthor{Paleo et Kieffer}
+    \shortauthor{Paleo et al.}
 
 \maketitle
 
 \begin{synopsis}
 An Python-OpenCL implementation of Scale-Invariant Feature Transform for image
-alignment
+alignment: application in Full-field X-Ray absorption spectroscopy.
 \end{synopsis}
 
 \begin{abstract}
-SIFT\_PyOCL is a Python module implementing a parallel version of the Scale
-Invariant Feature Transform algoritm in OpenCL, providing high-speed image
-registration and alignment both on processors and on graphics cards. 
+The Scale Invariant Feature Transform (SIFT) algorithm allows image registration and alignment.
+SIFT\_PyOCL is a Python module implementing a parallel version of this algoritm in OpenCL,
+providing high-speed image registration and alignment both on processors and on graphics cards.
 The sub-pixel precision measured is suitable for Full-Field X-ray
 absorption spectroscopy stack alignement and the speed allows the processing of
 such dataset online (i.e in real-time).
- 
+
 \end{abstract}
 
 \section{Introduction}
 
 Image alignment has been requested by many synchrotron beamlines for
 various techniques like speckle images reconstruction in the field of coherent
-X-ray diffraction imaging with module based pixel detectors or image stack
-alignement in the field of  
+X-ray diffraction imaging (CXDI) with module based pixel detectors or image
+stack alignement for full-field X-ray absorption sppectroscopy (FFXAS).
+To address this need we developped a parallel
+version of the SIFT algorithm for image registration working both on multi-core
+system and on graphics cards and interfaced in Python, a free scripting language
+very popular among scientists. This high performance computing library complements
+the toolbox based on NumPy\cite{numpy}, SciPy\cite{scipy} and
+skimage\cite{skimage}.
 
- To address this need we developped a parallel
-version of the SIFT algorithm for image registration working both on multi-core system and on graphics cards
-and interfaced in Python, a free scripting language very popular among
-scientists. This high performance computing library complements the toolbox
-based on NumPy\cite{numpy}, SciPy\cite{scipy} and skimage\cite{skimage}. 
+\section{Full-Field X-ray absorption spectroscopy}
+The European Synchrotron Radiation Facility (ESRF) beamline ID21 developed a
+full-field method for X-ray absorption near-edge spectroscopy\cite{fullfield}
+(XANES). In this experiment, for each energy point across a given K- or L-edge,
+a magnified 2D transmission image of the sample is acquired by a camera coupled
+to an X-ray scintillator and magnifying visible light optics.
+Then, a \emph{flat field} image, recorded with sample out of the X-ray beam, is
+used for normalization.
+A XANES stack consists of a series of normalized images that characterize the
+sample absorption across the absorption-edge of interest; each pixel being a XANES spectra.
+Since the flat field images are not acquired simultaneously with the sample
+transmission images, a realignment procedure has to be performed.
 
 
-\section{Scientific applications for image alignment}
-
-\subsection{Coherent X-Ray diffraction}
-
-\subsection{Full-Field X-ray absorption spectroscopy} 
-
-
-While phase correlation has intensively been used during the development of
-FFXAS for image alignment, this algorithm is limited to translation and turned
-out to be very sensitive to artifacts, among those: difference of intensity on
-the image border, defects on the syntillator or on the camera\ldots 
-Those defect could be corrected by some clever and sample specific
-pre-processing (i.e. apodisation of the signal on the borders).
 
 
 \section{Image alignemnt algorithm}
 
-\subsection{The limits of phase correation} 
+\subsection{The limits of phase correlation}
+
+While phase correlation (in Fourier space) has intensively been used during the
+development of FFXAS for stack alignment, this algorithm is limited to
+translation and turned out to be very sensitive to artifacts, among those:
+difference of intensity on  the image border, defects on the scintillator or on
+the camera\ldots.
+While those defects could be corrected by some clever and sample
+specific pre-processing like border cropping and apodisation, we have considered
+image alignment based on keypoint extraction.
 
 \subsection{Choice of the registration algorithm}
 
 The SIFT algorithm \cite{Lowe1999,Lowe2004} which has been developped
 for image registration and widely used for panoramic image stitching has beed
-adapted from the IPOL\cite{ASIFT} implementation. Image alignment obtained in
-FFXAS were similar in qualty to phase corelation with a better robustness to
-artefacts. Moreover keypoints in some defective region of the image can be
+adapted from the IPOL\cite{ASIFT} implementation.
+Another registration algorithm, SURF (for Speeded Up Robust Feature), has been
+evaluated: it produces fewer keypoints with keypoint descriptor twice
+smaller.
+While faster than SIFT and not patented, this algorithm was not retained as the
+quality of the registration and the matching was essential.
+
+Stack alignment obtained with SIFT in FFXAS were similar in quality to phase
+correlation with a very good robustness to artifacts.
+Moreover keypoints in some defective regions of the image can be
 discarded easily using a mask.
 
+Currently used at ESRF beamline ID21, the SIFT implementation takes about 8s
+per frame (when a stack can contain up to  500 frames) using a single core.
+Although the process is distributed using the EDNA\cite{edna} framework on a 16
+core computer, the performance limits are reached.
+Image alignment being a crucial step in data pre-processing, the SIFT
+algorithm had to be parallelized to take benefit of modern parallel
+hardware like graphics cards (GPU) to obtain a faster data rate.
+With the advent of high-performance GPU computing, many scientific data analysis
+programs have already benefited from such parallelization
+\cite{pyhst,pyfai,Favre-Nicolin}.
+%TODO :
+% more
 
-\subsection{how it works}
+\subsection{SIFT algorithm overview}
+%how it works
+SIFT is an algorithm in computer-vision which can be used for image alignment and pattern recognition. The keypoints are detected in several steps according to Lowe's paper\cite{Lowe99}.
+%:\begin{itemize}
+%%\setlength{\itemsep}{1pt}\setlength{\parskip}{0pt}\setlength{\parsep}{0pt}
+%\item Keypoints detection: local extrema are detected in the \textit{scale-space} $(x, y, s)$. Every pixel is compared to its neighborhood in the image itself, and in the previous/next scale factor images.
+%\item Keypoints refinement: keypoints located on corners are discarded. Additionaly, a second-order interpolation is done to improve the keypoints accuracy, modifying the coordinates $(x, y, s)$.
+%\item Orientation assignment: a characteristic orientation is assigned to the keypoints $(x,y,s, \theta)$
+%\item Descriptor computation: a histogram of orientations is built around every keypoint, then concatenated in a 128-values vector. This vector is called \textit{SIFT descriptor}, it is robust to rotation, illumination, translation and scaling.
+%\end{itemize}
+The scale variation is simulated by blurring the image. A very blurred image represents a scene seen from a distance, for small details are not visible.
+
+
+
+\subsubsection{Keypoints detection}
+The image is increasingly blurred to imitate the scale variations. This is done by convolving by a gaussian kernel. Then, consecutives blurs are substracted to get differences of gaussians (DoG). In these DoG, every pixel is tested. The pixel has a position $(x,y)$ in the current (blurred) image, and a \textit{scale} (that is, the blur factor) $s$.
+%The point :$(x,y,s)$ is a local maximum in the scale-space if\begin{itemize}
+%\setlength{\itemsep}{1pt}
+%\setlength{\parskip}{0pt}
+%\setlength{\parsep}{0pt}
+%\item $D(x-1, y, s) < D(x,y,s)$ and $D(x,y,s) > D(x+1, y, s)$ (local maximum in $x$)
+%\item $D(x, y-1, s) < D(x,y,s)$ and $D(x,y,s) > D(x, y+1, s)$ (local maximum in $y$)
+%\item $D(x, y, s -1) < D(x,y,s)$ and $D(x,y,s) > D(x, y, s+1)$ (local maximum in $s$)
+%\end{itemize}
+%\pic{0.7}{img/dog1.png}{Detection in scale-space (source: en.wikipedia.org)}
+
+
+
+\subsubsection{Keypoints refinement}
+At this stage, many keypoints are not reliable. Low-contrast keypoints are discarded, and keypoints located on an edge are rejected as well. For keypoints located on an edge, principal curvature across the edge is much larger than the principal curvature along it. The eigenvalues ratio $r$ of the Hessian matrix of the current DoG is compared to a threshold $\frac{(r+1)^2}{r} < R$.
+
+To improve keypoints accuracy, the coordinates are interpolated with a second-order Taylor development.
+%\[
+% D \left( \vec{x} + \vec{\delta_x} \right) \simeq D + \frac{\partial D}{\partial \vec{x}} \cdot \vec{\delta_x} + \frac{1}{2} \left( \vec{\delta_x} \right)^T \cdot \left( H \right) \cdot \vec{\delta_x} \qquad \text{with } H = \frac{\partial^2 D}{\partial \vec{x}^2}
+%\]
+Keypoints that were too far from a true (interpolated) extremum are rejected.
+
+
+\subsubsection{Orientation assignment}
+An orientation has to be assigned to each keypoint so that SIFT descriptors will be invariant to rotation. For each blurred version of the image, the gradient magnitude and orientation are computed. From the neighborhood of a keypoint, a histogram of orientations is built (36 bins, 1 bin per 10 degrees).
+%\pic{0.7}{img/orientation.png}{Orientation assignment}
+
+The maximum value of this histogram is the dominant orientation ; it is defined as the characteristic orientation of the keypoint. Additionaly, every peak greater than 80\% of the maximum generates a new keypoint with a different orientation.
+
+
+
+\subsubsection{Descriptor computation}
+A histogram of orientations is built around every keypoint. The neighborhood is divided into 4 regions of 4 subregions of 4x4 pixels. In every subregion, a 8-bin histogram is computed ; then, all the histograms are concatenated in a 128-values descriptor. The histogram is weighted by the gradient magnitudes and the current scale factor, so that the descriptor is robust to rotation, illumination, translation and scaling.
+
+\section{Implementation}
+While the phase correlation algorithm has been easily ported on graphics card
+thanks to PyCUDA and cuFFT, hence very fast for online data
+pre-processing;
+the SIFT algorithm is much more complicated and the implementation available was
+single threaded.
+
+\subsection{Parallelization of the algorithm}
+SIFT\_PyOCL kernels were written in Open Computing Language\cite{opencl} (OpenCL) so it can be run on various devices like GPU, multi-core CPU and accelerators. They are launched from a Python module using PyOpenCL\cite{pyopencl}, which provides both speed and code readability. The SIFT algorithm is used to align images with descriptors. Once the descriptors of the two images are computed, a least-squares method is used to determine the transformation aligning one image on the other.
+%All the steps, from descriptor computation to images alignment, are done on the device to benefit from its parallelism.
+
+Unlike existing parallel versions of SIFT\cite{lu,rister,vasilyev}, the entire process is done on the device to avoid time-consuming transfers between CPU and GPU. This leads to several subtle parts like the use of atomic instructions, or writing different versions of the same kernel to adapt to various platforms.
+
+The first steps of the algorithm (keypoints detection and refinement) did not raise particular difficulty. For these steps, we highly benefit from the device parallelism : every pixel is handled by a GPU thread. Besides, convolution is implemented in the direct space (without FT) and can be up to 50 times faster than the convolutions done by the C++ reference implementation. A pyramid is used to represent the image in scale-space\cite{Lowe04}.
+
+The parallel implementation of the last steps (orientation assignment and descriptors computation) was more complex. For a given kernel, the performances strongly depend on the graphic card the program is running on ; that is why there are different files for these kernels, adapted for different platforms. The OpenCL file to compile is automatically determined by the Python module.
+
+
+
+
 
 
 \section{Implementation}
 While the phase correlation algorithm has been easily ported on graphics card
 thanks to PyCUDA and cuFFT, hence very fast for online data
-pre-processing; 
+pre-processing;
 the SIFT algorithm is much more complicated and the implementation available was
 single threaded.
 
 \subsection{Parallelization of the algorithm}
 
+
+
 \subsection{Instalation and usage}
 \textem{Sift_pyocl} can, as any Python module, be installed from its sources,
 available on github:
-https://github.com/kif/sift_pyocl/archive/master.zip 
+https://github.com/kif/sift_pyocl/archive/master.zip
 While \textem{Sift_pyocl} is open source and licensed under a very
 permissive BSD license; one should notice the SIFT algorithm itself is
 patented by the Univerity of Columbia\cite{SIFT}; neverthless this patent does
@@ -115,7 +213,7 @@ In this section we have collected some basic examples of how
 pylab\cite{matplotlib} mode.
 
 1) Extract keypoints:
-In [1]: import fabio 
+In [1]: import fabio
 In [2]: img1 = fabio.open('image1.edf').data
 In [3]: import sift
 In [4]: siftplan = sift.SiftPlan(template=img1, devicetype="GPU")
@@ -123,13 +221,13 @@ In [5]: kp1 = siftplan.keypoints(img1)
 
 After having imported the FabIO\cite{fabio} module in 1, a first
 4Mpixel absorption image is read in 2. The library is loaded in 3 and the GPU is
-initialized in 4 with all memory allocated on the device. 
+initialized in 4 with all memory allocated on the device.
 In 4, the keypoint extraction took 60 ms for a
 4 Mpixel image and returned a 261 keypoint vector as a numpy array.
 
 2) Match keypoints between images
 In [6]: img2 = fabio.open('image2.edf').data
-in [7]: 
+in [7]:
 siftplan = sift.SiftPlan(template=img11, devicetype="GPU")
 kp1 = siftplan.keypoints(img11)
 %timeit kp1 = siftplan.keypoints(img11)
@@ -147,7 +245,7 @@ im2 = fabio.open("Ti_slow_data_0002_0055_0000_norm.edf").data
 
 3) Align an image on a reference
 
-   
+
 
 \subsection{Performances}
 
@@ -184,5 +282,5 @@ Claudio Ferrero and Andy G\"otz
 \end{document}
 
 
- 
+
 
