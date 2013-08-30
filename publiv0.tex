@@ -1,0 +1,77 @@
+\documentclass[preprint]{iucr}
+ \papertype{CP}
+ \journalcode{S}
+
+
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+\begin{document}
+
+
+\title{SIFT\_PyOCL : an implementation of SIFT in OpenCL}
+\shorttitle{SIFT\_PyOCL}
+
+    \author[a]{Jerome}{Kieffer}
+    \author[b]{Pierre}{Paleo}
+    %\author[c]{Jonathan P.}{Wright}
+    \author[c]{Ga\"el}{Goret}
+    \cauthor[c]{J\'er\^ome}{Kieffer}{jerome.kieffer@esrf,fr}{}
+    \aff[a]{European Synchrotron Radiation Facility, \city{Grenoble}, \country{France}}
+    %\aff[b]{}
+    %\aff[c]{European Synchrotron Radiation Facility, \city{Grenoble}, \country{France}}
+	\shortauthor{Kieffer et al.}
+
+\maketitle
+
+\begin{synopsis}
+An OpenCL implementation of Scale-Invariant Feature Transform for image alignment
+\end{synopsis}
+
+\begin{abstract}
+SIFT\_PyOCL 
+
+
+FabIO is a Python module written for easy and transparent reading 
+of raw two-dimensional data from various X-ray detectors. The module provides a
+function for reading any image and returning a fabioimage object which 
+contains both metadata (header information) and the raw data.
+All fabioimage object offer additional methods to extract
+information about the image and to open other detector images from
+the same data series.
+ 
+\end{abstract}
+
+\section{Introduction}
+
+
+\section{FabIO Python module}
+
+Python \cite{python} is a scripting language that is very popular among scientists
+and which also allows well structured applications and libraries to be developed.
+
+
+
+
+\ack{Acknowledgements}
+
+We acknowledge Andy G\"otz and Kenneth Evans for extensive testing when including
+the FabIO reader in the Fable ImageViewer \cite{fable}.
+We also thank V. Armando Sol\'e for assistance with his TiffIO reader and
+Carsten Gundlach for deployment of FabIO at the beamlines i711 and i811, 
+MAX IV and providing bug reports.
+We finally acknowledge our colleagues who have reported bugs and helped to
+improve FabIO.
+Financial support was granted by the EU 6th Framework NEST/ADVENTURE project
+TotalCryst \cite{totalcryst}.
+
+
+
+\bibliographystyle{iucr}
+\bibliography{biblio}
+%\referencelist[biblio]
+
+
+
+\end{document}
