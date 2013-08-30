@@ -108,6 +108,41 @@ Intel and AMD. The full installation procedure with testing is simply:
 \textem{python setup.py build test install}
 
 
+\subsection{Examples}
+
+In this section we have collected some basic examples of how
+\textem{sift_pyocl} can be employed; using IPyhon\cite{ipython} in
+pylab\cite{matplotlib} mode.
+
+1) Extract keypoints:
+In [1]: import sift
+In [2]: import fabio 
+In [3]: img1 = fabio.open('image1.edf').data
+In [4]: siftplan = sift.SiftPlan(template=img1, devicetype="GPU")
+In [5]: kp1 = siftplan.keypoints(img1)
+
+The keypoint extraction took 60 ms for a 4 Mpixel image and returned a 261
+keypoint vector as a numpy array
+
+2) Match keypoints between images
+
+
+
+3) Align an image on a reference
+
+   
+
+\subsection{Performances}
+
+\subsection{Limits}
+While all calculations are performed in single precision floating point which is
+compatible with event the eldest graphic cards supported by OpenCL, the memory
+consumption has been traded for performances. Moreover, the algorithm is suited
+for linear color scales; making it unsuitable for diffraction images.
+Neverthless; using the difference of gaussian method on a pyramid like in
+SIFT could be of great help in the extraction of keypoints for calibation of
+powder diffraction images.
+
 
 \section{outlook}
 
@@ -115,8 +150,6 @@ Registration of 3-dimentional object would have a huge application, especially
 in the field of tomography and medial images; this field of reseach is very
 active in applied mathematics and computer vision.
 
-Use the difference of gaussian method on a pyramid could help in auto-calibation
-of powder diffraction images 
 
 \section{Conclusion}
 
