@@ -318,17 +318,18 @@ were measured on a Nvidia GeForce Titan as GPU).
 The SIFT\_PyOCL has been benchmarked versus the IPOL reference implementation on
 a dual Intel E5-2667 (12 cores, 2.90GHz) with a Nvidia Tesla K20m. The
 acceleration measured on large images (more than 10 Mpixels) is between 30 times
-and 50 times depending on the image complexity, on the GPU and from 4\times to
-10\times when running on CPU.
+and 50 times depending on the image complexity, on the GPU and from 4 times to
+10 times when running on CPU.
 
 %Shall we add a Table  Execution time/device ? 
-\subsection{Limits}
+\subsection{Limitations}
 While all calculations are performed in single precision floating point which is
-compatible with event the eldest graphic cards supported by OpenCL, the memory
-consumption has been traded for performances. Moreover, the algorithm is suited
+compatible even with the eldest graphic cards supported by OpenCL, the
+memory consumption has been traded for performances. 
+Moreover, the algorithm is suited
 for linear color scales; making it unsuitable for high dynamic range
 images like diffraction images.
-Neverthless; using the difference of gaussian method like in
+Neverthless, using the difference of gaussian method like in
 SIFT could be interesting for the extraction of spots for diffraction
 images.
 
@@ -336,7 +337,7 @@ images.
 \section{Future and perspectives}
 
 Registration of 3-dimentional object would have a huge application, especially
-in the field of tomography and medial images; this field of reseach is very
+in the field of tomography and medical images; this field of reseach is very
 active in applied mathematics and computer vision.
 
 
@@ -349,7 +350,7 @@ SIFT\_PyOCL has been implemented in parallel with adaptation to various
 graphic cards and on multi-core processors where it shows interesing speed-ups.
 Its programming interface tried to be simple to use and pythonic while doing
 high performance computing under the hood. We believe it can be adopted by other
-software developers to perform image alignement this is why the code was made
+software developers to perform image alignement. This is why the code was made
 open-source and free to re-distribute.
 
 
