@@ -339,10 +339,34 @@ correction to the frame [11], returning the corrected frame (execution time:
 The SIFT\_PyOCL implementation has been compared with the SIFT
 implementation from \cite{ASIFT} found on the IPOL server (reference
 implementation) on a dual Intel E5-2667 (12 cores, 2.90GHz) with an Nvidia Tesla
-K20m. The acceleration measured on large images (more than 10 Mpixels) is
-between 30 times and 100 times depending on the image complexity, on the GPU and from 4 times to 10 times when running on CPU.
+K20m computer, Informations are summarized in Table \ref{bench}. 
+The acceleration measured on large images (more than 10 Mpixels) is between 30
+times and 100 times depending on the image complexity, on the GPU and from 4
+times to 10 times when running on CPU. 
+Largest speed-ups have been obtained on large images thanks to the
+great acceleration of gaussian blurrings. 
 
-%Shall we add a Table  Execution time/device ? 
+\begin{table}
+\caption{Execution time for typical FFXAS images (2560x2160) using different
+implementations on a dual Intel E5-2667 (12 cores, 2.90GHz) with an Nvidia Tesla
+K20m.}
+\label{bench}
+\vspace{1mm}
+\begin{center}
+\begin{tabular}{l l ccc}
+Implementation & Driver & Keypoint extraction & Keypoint matching &
+Image alignment\\
+\hline
+ASIFT        &   C++     &   3610 ms  & 95 ms  & --  \\ 
+SIFT\_PyOCL  &   AMD  &   522 ms  &  21 ms&  578 ms \\
+SIFT\_PyOCL  &   Intel  &   741 ms  &  13 ms&  843 ms\\
+SIFT\_PyOCL  &   Nvidia  &    75 ms  &  5.8 ms & 90 ms\\
+\end{tabular}
+\end{center}
+\end{table}
+
+  
+
 \subsection{Limitations}
 While all calculations are performed in single precision floating point which is
 compatible even with the oldest graphic cards supported by OpenCL, the
