@@ -45,8 +45,10 @@ Image alignment is needed on many synchrotron beamlines for
 various techniques like speckle images reconstruction in the field of coherent
 X-ray diffraction imaging (CXDI) with module based pixel detectors or image
 stack alignement for full-field X-ray absorption spectroscopy (FFXAS).
-To address these needs we developed a parallel
-version of the SIFT algorithm for image registration, SIFT\_PyOCL, working both
+To address these needs, a parallel version of the SIFT algorithm, SIFT\_PyOCL,
+for image registration has been developed, working both 
+%we developed a parallel
+%version of the SIFT algorithm for image registration, SIFT\_PyOCL, working both
 on multi-core systems and on graphics cards, and interfaced in Python, a free
 scripting language very popular among scientists. 
 This high performance computing library complements
@@ -56,16 +58,17 @@ skimage \cite{skimage}.
 \section{Full-Field X-ray absorption spectroscopy}
 The European Synchrotron Radiation Facility (ESRF) beamline ID21 developed a
 full-field method for X-ray absorption near-edge spectroscopy
-(XANES) \cite{fullfield}. 
-In this experiment a magnified 2D transmission image of the sample is acquired,
-for each energy point across a given K- or L-edge, by a camera coupled with an 
+(XANES) \cite{andrade,fullfield}. 
+In this experiment, for each energy point across a given K- or L-edge, 
+a magnified 2D transmission image with and without the sample are acquired
+by a camera coupled with an 
 X-ray scintillator and magnifying visible light optics.
 For each image with the sample, a \emph{flat field} image, recorded
 without the sample, as to be taken before the beam drifts and is used for
 normalization.
 A XANES stack consists of a series of normalized images that characterize the
 sample absorption across the absorption edge of interest, each pixel being a
-point in the XANES spectrum.
+point in the XANES spectrum (after taking the logarithm of the intensity).
 Since the sample has to be moved in and out of the beam for every frame, a
 realignment procedure has to be performed.
 
@@ -76,12 +79,12 @@ realignment procedure has to be performed.
 
 Phase correlation (in Fourier space) has extensively been used during the
 development of FFXAS for stack alignment, however this algorithm is limited to
-translation and turned out to be very sensitive to artifacts, such as:
+translation movement and turned out to be very sensitive to artifacts, such as:
 intensity difference on the image border, defects in the scintillator or on
 the camera, etc.
-These defects could be corrected by some clever and sample
+These defects could be corrected by some sample
 specific pre-processing like border cropping and apodisation. 
-In order to make this procedure automatic and suppress human intervention, we
+However, in order to make this procedure automatic and suppress human intervention, we
 have considered image alignment based on keypoints extraction.
 
 \subsection{Image registration algorithm}
@@ -99,7 +102,7 @@ making matching less reliable.
 Stack alignment obtained with SIFT in FFXAS are comparable in terms of
 quality to phase correlation while exhibiting very good robustness
 to artifacts.
-Moreover keypoints in some defective regions of the image could be
+Moreover, keypoints in some defective regions of the image could be
 discarded easily using a mask.
 
 Currently used at ESRF beamline ID21, the SIFT implementation takes about 8
@@ -241,30 +244,31 @@ platforms (CPU or GPU) and devices (e.g. \emph{compute capabilities} for
 Nvidia GPUs).
 
 The implementation of the first steps of the algorithm (keypoints detection and
-refinement) did not raise any particular difficulty. 
-For these steps, we highly benefitted from the device parallelism : every pixel 
-is handled by a single thread. 
-Besides that, convolution is implemented in the direct space (without Fourier
-transform) and can be up to 100 times faster than the convolution done in the
-C++ reference implementation of IPOL \cite{ASIFT}.  
+refinement) did not raise any particular difficulty, since device parallelism 
+allows handling every pixel by a single thread.
+Besides that, convolution was implemented in the direct space (without Fourier
+transform), currently up to 100 times faster than the convolution done in 
+the C++ reference implementation of IPOL \cite{ASIFT} 
+(and even faster, depending on the CPU/GPU pair).  
 A pyramid is used to represent the image in scale space \cite{Lowe04}.
 
 The parallel implementation of the last steps (orientation assignment and 
 descriptors computation) was more complex. 
 For a given kernel, the performances strongly depend on the image
-complexity and on the device the code is executed on. This is why we have
-written different versions, each adapted to different platforms and
+complexity and on the device the code is executed on. 
+Consequently, different versions have been written, each adapted to 
+different platforms and
 devices; the optimal version being selected by the
 Python module based on the \emph{compute capabilities} of the selected device.
 
 
 \subsection{Instalation and usage}
-SIFT\_PyOCL can, as any Python module, be installed from its sources,
+SIFT\_PyOCL, as any Python module, can be installed from its sources,
 available on github \cite{sift_pyocl}.
 Whilst SIFT\_PyOCL is open source and licensed under a very
 permissive BSD license, the SIFT algorithm itself is
-patented by the Univerity of Columbia \cite{SIFT_pat}, nevertheless this patent
-does not apply in Europe.
+patented by the Univerity of Columbia \cite{SIFT_pat}. 
+Nevertheless this patent does not apply in Europe.
 
 Beside Python (version 2.6 or 2.7) and NumPy, SIFT\_PyOCL needs
 PyOpenCL.
@@ -300,9 +304,9 @@ After having imported the FabIO \cite{fabio} module in [1], a first
 absorption image is read in [2]. The SIFT\_PyOCL library is loaded in [3] and the
 GPU is initialized in [4] with all memory allocated on the device (depending on
 the image size).
-In [4], the keypoint extraction took 60 ms for a
-4 Mpixel image and returned a 261 keypoints vector as a numpy array named
-\emph{kp1}.
+In [4], the keypoint extraction takes 60 ms for a
+4 Mpixel image and returns a 261 keypoints vector as a numpy array named
+\emph{kp1} (depending on the image).
 %This figure varies a lot from sample to sample.
 
 \subsubsection{Match keypoints between images:}
@@ -324,9 +328,11 @@ In [10]: aligner = sift.LinearAlign(img1,devicetype='GPU')
 In [11]: img2_cor = aligner.align(img2)
 \end{verbatim}
 It is also possible to align directly an image on a reference frame using an
-affine transformation: combination of translation, rotation, homothety and
-reflection. An \emph{aligner} object is defined in [10] with a reference
-image and the kind on device. This aligner contains keypoints of the
+affine transformation: combination of translation, rotation, homothety,
+reflection, etc.
+An \emph{aligner} object is defined in [10] by instantiating the 
+\emph{LinearAlign} class from a reference image and the device type. 
+This \emph{aligner} contains keypoints of the
 reference, a \emph{SiftPlan} and a \emph{MatchPlan} object plus the least square
 refinement and bi-linear interpolation kernel.
 The \emph{align} method performs keypoint extraction, matching, least-square
@@ -368,7 +374,8 @@ SIFT\_PyOCL  &   Nvidia  &    75 ms  &  5.8 ms & 90 ms\\
   
 
 \subsection{Limitations}
-While all calculations are performed in single precision floating point which is
+While all calculations are performed in single precision floating point,
+which is
 compatible even with the oldest graphic cards supported by OpenCL, the
 memory consumption has been traded off for performance. 
 Moreover, the algorithm is essentially suited
