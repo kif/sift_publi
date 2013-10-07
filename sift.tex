@@ -2,7 +2,7 @@
  \papertype{CP}
  \journalcode{S}
 
-
+\usepackage{graphicx}
 
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
@@ -10,7 +10,8 @@
 \begin{document}
 
 %\title{Image registration and alignment algorithm for synchrotron applications}
-\title{SIFT\_PyOCL : an implementation of SIFT in OpenCL}
+\title{Full-field X-Ray absorption spectroscopy: Image stack
+alignement using SIFT\_PyOCL}
 \shorttitle{SIFT\_PyOCL}
 
     \author[a]{Pierre}{Paleo}
@@ -23,20 +24,20 @@
 
 \begin{synopsis}
 A Python-OpenCL implementation of the  Scale-Invariant Feature Transform
-algorith for image alignment, full-field X-Ray absorption
-spectroscopy application.
+algorithm for image alignment allows fine control of the realignment procedure
+in the full-field X-Ray absorption spectroscopy application.
 \end{synopsis}
 
 \begin{abstract}
-The Scale Invariant Feature Transform (SIFT) algorithm allows image registration
-and alignment. 
+The Scale Invariant Feature Transform (SIFT) algorithm allows image
+registration and alignment at the sub-pixel precision. Combined
+with the selection of a region of interest, the application of this algorithm
+is demonstrated for the alignement of full-field X-ray absorption spectroscopy
+image stack.
 SIFT\_PyOCL is a Python module implementing a parallel version of this algoritm
-in OpenCL,  providing high-speed image registration and alignment both on
-processors and on graphics cards. 
-The sub-pixel precision measured is suitable for the stack alignement of 
-full-field X-ray absorption spectroscopy images and its speed allows the online
-processing of such dataset (i.e while experiment is going on).
-
+in OpenCL, providing high-speed image registration and alignment both on
+processors and on graphics cards. The performances of the algorithm allows
+online processing of large dataset, while experiment is going on (online).
 \end{abstract}
 
 \section{Introduction}
@@ -59,8 +60,8 @@ skimage \cite{skimage}.
 The European Synchrotron Radiation Facility (ESRF) beamline ID21 developed a
 full-field method for X-ray absorption near-edge spectroscopy
 (XANES) \cite{andrade,fullfield}. 
-In this experiment, for each energy point across a given K- or L-edge, 
-a couple of magnified 2D transmission image, with and without the sample, 
+In this experiment (Figure \ref{setup}), for each energy point across a given K-
+or L-edge, a couple of magnified 2D transmission image, with and without the sample, 
 are acquired by a camera coupled with an 
 X-ray scintillator and magnifying visible light optics.
 For each image with the sample, a \emph{flat field} image, recorded
@@ -72,6 +73,13 @@ point in the XANES spectrum (after taking the logarithm of the intensity).
 Since the sample has to be moved in and out of the beam for every frame, a
 realignment procedure has to be performed.
 
+\begin{figure}
+\begin{center}
+\includegraphics[width=15cm]{setup.eps}
+\caption{\label{setup} Experimental setup of the Full-Field X-ray absorption
+spectroscopy experiment at ID21.}
+\end{center}
+\end{figure}
 
 \section{Image alignemnt algorithm}
 
@@ -85,7 +93,8 @@ the camera, etc.
 These defects could be corrected by some sample
 specific pre-processing like border cropping and apodisation. 
 However, in order to make this procedure automatic and suppress human intervention, we
-have considered image alignment based on keypoints extraction.
+have considered image alignment based on keypoints extraction. 
+
 
 \subsection{Image registration algorithm}
 
@@ -104,6 +113,30 @@ quality to phase correlation while exhibiting very good robustness
 to artifacts.
 Moreover, keypoints in some defective regions of the image could be
 discarded easily using a mask.
+
+Figure \ref{sample} represents the X-Ray transmission (at the K edge of Sulfure)
+of a grain of a painting pigment used by Matisse in ??? and embedded in a solid
+matrix. 
+Few artifacts on the scintillator are also visible. 
+Each arrow represents a keypoint, as extracted by the SIFT algorihm, arrow in
+red are inside the region of interest (i.e. on the sample) 
+while those in blue are outside this region and
+correspond either to feature of the resine (matrix) or to feature present on the
+scintillator (which needs to me removed).
+A keypoint is characterized by its position, its orientation and scale, and a
+128-byte descripor.
+Here, the size of the arrow is proportional to the scale of the feature
+detected and its direction is function of features' orientaton.
+ 
+\begin{figure}
+\begin{center}
+\includegraphics[width=15cm]{features.eps}
+\caption{\label{sample} X-Ray radiograph of a grain of pointing taken at ID21 at
+the suflure K-edge. Arrows represent the position of SIFT-keypoints, in red
+those corresponding to the sample and in blue those from artifacts.}
+\end{center}
+\end{figure}
+
 
 Currently used at ESRF beamline ID21, the SIFT implementation takes about 8
 seconds per 4 Mpixel frame  (a stack can contain up to  500 frames) using
