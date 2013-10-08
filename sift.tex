@@ -33,14 +33,14 @@ of millions of spectra in minutes but requires an image alignment procedure duri
 building of the hyperspectral image.
 This contribution presents how the Scale Invariant Feature Transform (SIFT)
 algorithm, which allows image registration and alignment at the sub-pixel
-precision, can replace the phase corelation algorithm originately used.  
-The SIFT algorithm, which has beed designed for robustness with respect to
+precision, can replace the phase correlation algorithm originally used.
+The SIFT algorithm, which has been designed for robustness with respect to
 rotation, illumination change, translation and scaling; allows also the
 selection of a region of interest for image alignment.
-SIFT\_PyOCL is a Python module implementing a parallel version of this algoritm
+SIFT\_PyOCL is a Python module implementing a parallel version of this algorithm
 in OpenCL, providing high-speed image registration and alignment both on
 processors and on graphics cards. The performances of the algorithm allows
-online processing of large dataset, while experiment is going on (online).
+online processing of large dataset.
 
 \end{abstract}
 
@@ -55,20 +55,20 @@ simply to re-position a sample on the experimental stage using visible light.
 After a presentation of the FFXAS experiment where image alignment is a crucial
 part of the pre-processing, image registration algorithm (based on keypoint
 extraction) will be compared to phase correlation algorithm in the
-scope of FFXAS. 
-Finally, SIFT\_PyOCL, the parallel version of the SIFT algorithm  we developped
-is presented: describing some implementation details, how to use it with a short
-tutorial and some benchmark in the scope of the data prprocessing of the  FFXAS
-experiment.
+scope of FFXAS.
+Finally, SIFT\_PyOCL, the parallel version of the SIFT algorithm  we developed
+is presented; describing some implementation details, how to use it with a short
+tutorial and some benchmark in the scope of the data pre-processing of the
+FFXAS experiment.
 
 
 \section{Full-Field X-ray absorption spectroscopy}
 The European Synchrotron Radiation Facility (ESRF) beamline ID21 developed a
 full-field method for X-ray absorption near-edge spectroscopy
-(XANES) \cite{andrade,fullfield}. 
+(XANES) \cite{andrade,fullfield}.
 In this experiment (Figure \ref{setup}), for each energy point across a given
 absorption edge, a couple of magnified 2D transmission image, with and
-without the sample, are acquired by a camera coupled with an 
+without the sample, are acquired by a camera coupled with an
 X-ray scintillator and magnifying visible light optics.
 For each image with the sample, a \emph{flat field} image, recorded
 without the sample, as to be taken before the beam drifts and is used for
@@ -98,25 +98,28 @@ translation movement and turned out to be very sensitive to artifacts, such as:
 intensity difference on the image border, defects in the scintillator or on
 the camera, etc.
 \begin{equation}
+\begin{center}
 \label{phasecor}
 $$offset =
 argmax_{x,y}[\mathcal{F}^{-1}(\mathcal{F}(img1)\times\mathcal{F}(img2)^*)]$$
+\end{center}
 \end{equation}
 
 
 These defects could be corrected by some sample
 specific pre-processing like border cropping and apodisation.
 However, in order to make this procedure automatic and suppress human intervention, we
-have considered image alignment based on keypoints extraction. 
+have considered image alignment based on keypoints extraction.
 
 
 \subsection{Feature-based image registration algorithm}
 
-Feature-based methods establish a correspondence between a
-number of especially distinct points in images. 
-Those keypoints are composed of position on the image 
-$x$ and $y$, a scale representing the $scale$ of the feature and it's
-orientation, or $angle$. This makes those keypoints naturally robust to
+Feature-based registration methods establish a correspondence between a
+number of especially distinct points in images.
+Those keypoints are not only composed of position on the image ($x$ and $y$),
+but also associated to the $scale$ of the feature and it's
+orientation (or $angle$).
+This makes those keypoints naturally robust to
 translation, rotation and change of scale.
 In addition, each keypoint contains a descriptor which represents the
 orientation in the neighbourhood of the keypoint and is used when matching
@@ -124,7 +127,7 @@ keypoints.
 
 The SIFT algorithm \cite{Lowe99,Lowe04}, initially developed for image
 registration and widely used for panoramic image stitching has been adapted to
-FFXAS from the IPOL implementation \cite{ASIFT}.  
+FFXAS from the IPOL implementation \cite{ASIFT}.
 Another registration algorithm, SURF (for Speeded Up Robust Feature
 \cite{surf}), has been evaluated: it produces fewer keypoints with a keypoint
 descriptor twice smaller than SIFT.
@@ -135,51 +138,51 @@ making matching less reliable.
 Initially, the image offset was obtained from the median of the
 difference in position of keypoint within a pair of matched keypoint.
 Knowing the correspondence between a set of keypoints in images,
-more sophisticated transformation patterns like rotation, affine 
+more sophisticated transformation patterns like rotation, affine
 or projective transformation can be envisaged, after the least-square fit of the
 transformation parameters on the matched keypoints.
-
 Stack alignment obtained with SIFT after simple translation in FFXAS are
 comparable in terms of quality to phase correlation while exhibiting very good
 robustness to artifacts.
- 
+
 Moreover, one could want to exclude (mask out) regions containing features
 specific to the scintillator or at the opposit only keep keypoints located
-inside a region of interest (with an arbitrary shape). 
+inside a region of interest (with an arbitrary shape).
 This is easily possible by removing keypoints in unwanted regions:
-Figure \ref{sample} is a typical frame extracted from a XANES stack, 
-represents the X-Ray
-transmission (at the K edge of sulfure) of a grain of a painting pigment used by Matisse in ??? and embedded in a solid
-matrix, after image normalization.  
-Few artifacts on the scintillator are also visible. 
-Each arrow represents a keypoint, as extracted by the SIFT algorithm, arrows in
-red are inside the region of interest (i.e. on the sample) 
+Figure \ref{sample} is a typical frame extracted from a XANES stack:
+it is the normalized X-Ray transmission at the K edge of sulfure of a painting
+thin section sampled out on the Matisse painting ??? and embedded in
+a pentacrylate resin.
+Few artifacts on the scintillator are visible as well as the resin border.
+Each arrow on the figure represents a keypoint, as extracted by the SIFT
+algorithm, arrows in red are inside the region of interest (i.e. on the sample)
 while those in blue are outside this region and
 correspond either to feature of the resin (matrix) or to feature present on the
 scintillator (which needs absolutely to me removed).
 Here, the size of the arrow is proportional to the scale of the feature
 detected and its direction is the same as the orientation of the feature as
 given by the SIFT algorithm.
- 
+
 \begin{figure}
 \begin{center}
 \includegraphics[width=15cm]{features.eps}
-\caption{\label{sample} X-Ray radiograph of a grain of pointing taken at ID21 at
-the suflure K-edge. Arrows represent the position of SIFT-keypoints, in red
-those corresponding to the sample and in blue those from artifacts.}
+\caption{\label{sample} X-Ray radiograph of a thin section of painting
+taken at ID21 at the suflure K-edge. Arrows represent the position of SIFT-keypoints, in red
+those corresponding to the sample and in blue those from artifacts and from
+the matrix.}
 \end{center}
 \end{figure}
 
 
 
 \subsection{SIFT algorithm overview}
-SIFT is an algorithm in computer vision which can be used for image alignment
-and pattern recognition.
+% SIFT is an algorithm in computer vision which can be used for image alignment
+% and pattern recognition.
 
 %:\begin{itemize}
 %%\setlength{\itemsep}{1pt}\setlength{\parskip}{0pt}\setlength{\parsep}{0pt}
 %\item Keypoints detection: local extrema are detected in the \textit{scale-space} $(x, y, s)$. Every pixel is compared to its neighborhood in the image itself, and in the previous/next scale factor images.
-%\item Keypoints refinement: keypoints located on corners are discarded. Additionaly, a second-order interpolation is done to improve the keypoints accuracy, modifying the coordinates $(x, y, s)$.
+%\item Keypoints refinement: keypoints located on corners are discarded. Additionally, a second-order interpolation is done to improve the keypoints accuracy, modifying the coordinates $(x, y, s)$.
 %\item Orientation assignment: a characteristic orientation is assigned to the keypoints $(x,y,s, \theta)$
 %\item Descriptor computation: a histogram of orientations is built around every keypoint, then concatenated in a 128-values vector. This vector is called \textit{SIFT descriptor}, it is robust to rotation, illumination, translation and scaling.
 %\end{itemize}
@@ -190,7 +193,7 @@ original paper \cite{Lowe99}.
 The scale variation is simulated by blurring the image:
 A very blurred image represents a scene seen from a longer distance, where
 small-scale details are not visible. Feature vanishing at a given scale are
-local maxima when subtracting the next blured from current image. Finally the
+local maxima when subtracting the next blurred from current image. Finally the
 keypoint orientation and descriptor are obtained from gradient orientation
 histograms.
 
@@ -219,7 +222,8 @@ local maxima in this scale-space.
 \subsubsection{Keypoints refinement:}
 
 At this stage, many keypoints are not reliable: low-contrast keypoints are
-discarded, and keypoints located on an edge are rejected as well.
+discarded, and keypoints located on an edge are rejected in favour to those
+staying on corners.
 %For keypoints located on an edge, principal curvature across the edge is much
 %larger than the principal curvature along it.
 %The eigenvalues ratio $r$ of the Hessian matrix of the current DoG is compared
@@ -243,7 +247,7 @@ bins, 1 bin per 10 degrees).
 
 The maximum value of this histogram is the dominant orientation; it is defined
 as the characteristic orientation of the keypoint.
-Additionaly, every peak greater than 80\% of the maximum generates a new
+Additionally, every peak greater than 80\% of the maximum generates a new
 keypoint with a different orientation.
 
 
@@ -265,7 +269,7 @@ illumination, translation and scaling.
 While the phase correlation algorithm has been easily ported on graphics card
 thanks to PyCUDA \cite{pyopencl} and cuFFT, and hence it is very fast and well
 suited for online data pre-processing;
-the SIFT implementation used at ESRF beamline ID21, based on \cite{ASIFT}, 
+the SIFT implementation used at ESRF beamline ID21, based on \cite{ASIFT},
 takes about 8 seconds per 4 Mpixel frame  (a stack can contain up to  500 frames) using
 a single core.
 Although the process is distributed using the EDNA framework \cite{edna} on a
@@ -273,10 +277,10 @@ Although the process is distributed using the EDNA framework \cite{edna} on a
 
 The SIFT algorithm, which is much more complicated than the phase
 correlation algorithm, needed to be parallelized to benefit as well from modern
-largely parallel hardware like graphics cards (GPU) to achieve the required 
+largely parallel hardware like graphics cards (GPU) to achieve the required
 data rate.
 
-SIFT\_PyOCL is a Python library implementating this algoritm for GPU
+SIFT\_PyOCL is a Python library implementating this algorithm for GPU
 and other massively parallel compute devices.
 
 
@@ -478,7 +482,7 @@ algorithm running both on graphic cards and on multi-core processors, with
 interesing speed-ups.
 Its programming interface tried to be simple to use and \emph{pythonic} while
 supporting high performance computing ``under the hood''.
-We believe it can be adopted by other software developers as general purpose  
+We believe it can be adopted by other software developers as general purpose
 image alignment method; this is why the code was made open-source and free for
 re-distribution.
 
@@ -491,7 +495,7 @@ the full field XAS technique.
 In the instrumentation division (ISDD) we would like to thank Claudio Ferrero,
 head of data analysis unit, and Andy G\"otz, head of software group, for
 supporting the parallelization work on this algorithm.
-
+The XXX museum is ackowledged for providing the painting fragment
 \bibliographystyle{iucr}
 \bibliography{biblio}
 %\referencelist[biblio]
