@@ -9,9 +9,8 @@
 
 \begin{document}
 
-%\title{Image registration and alignment algorithm for synchrotron applications}
 \title{Full-field X-Ray absorption spectroscopy: Image stack
-alignement using SIFT\_PyOCL}
+alignment using SIFT\_PyOCL}
 \shorttitle{SIFT\_PyOCL}
 
     \author[a]{Pierre}{Paleo}
@@ -23,17 +22,21 @@ alignement using SIFT\_PyOCL}
 \maketitle
 
 \begin{synopsis}
-A Python-OpenCL implementation of the  Scale-Invariant Feature Transform
-algorithm for image alignment allows fine control of the realignment procedure
-in the full-field X-Ray absorption spectroscopy application.
+Application of the Scale-Invariant Feature Transform (SIFT) algorithm for image
+stack alignment in full-field X-Ray absorption spectroscopy and presentation of
+a Python-OpenCL implementation of this algorithm.
 \end{synopsis}
 
 \begin{abstract}
-The Scale Invariant Feature Transform (SIFT) algorithm allows image
-registration and alignment at the sub-pixel precision. Combined
-with the selection of a region of interest, the application of this algorithm
-is demonstrated for the alignement of full-field X-ray absorption spectroscopy
-image stack.
+The full-field X-ray absorption spectroscopy experiment allows the acquisition
+of millions of spectra in minutes but requires an image alignment procedure during the
+building of the hyperspectral image.
+This contribution presents how the Scale Invariant Feature Transform (SIFT)
+algorithm, which allows image registration and alignment at the sub-pixel
+precision, can replace the phase corelation algorithm originately used.  
+The SIFT algorithm, which has beed designed for robustness with respect to
+rotation, illumination change, translation and scaling; allows also the
+selection of a region of interest for image alignment.
 SIFT\_PyOCL is a Python module implementing a parallel version of this algoritm
 in OpenCL, providing high-speed image registration and alignment both on
 processors and on graphics cards. The performances of the algorithm allows
@@ -46,32 +49,34 @@ online processing of large dataset, while experiment is going on (online).
 Image alignment is needed on many synchrotron beamlines for
 various techniques like speckle images reconstruction in the field of coherent
 X-ray diffraction imaging (CXDI) with module based pixel detectors or image
-stack alignement for full-field X-ray absorption spectroscopy (FFXAS).
-To address these needs, a parallel version of the SIFT algorithm, SIFT\_PyOCL,
-for image registration has been developed, working both
-%we developed a parallel
-%version of the SIFT algorithm for image registration, SIFT\_PyOCL, working both
-on multi-core systems and on graphics cards, and interfaced in Python, a free
-scripting language very popular among scientists.
-This high performance computing library complements
-the toolbox based on NumPy \cite{numpy}, SciPy \cite{scipy} and
-skimage \cite{skimage}.
+stack alignment for full-field X-ray absorption spectroscopy (FFXAS); or
+simply to re-position a sample on the experimental stage using visible light.
+
+After a presentation of the FFXAS experiment where image alignment is a crucial
+part of the pre-processing, image registration algorithm (based on keypoint
+extraction) will be compared to phase correlation algorithm in the
+scope of FFXAS. 
+Finally, SIFT\_PyOCL, the parallel version of the SIFT algorithm  we developped
+is presented: describing some implementation details, how to use it with a short
+tutorial and some benchmark in the scope of the data prprocessing of the  FFXAS
+experiment.
+
 
 \section{Full-Field X-ray absorption spectroscopy}
 The European Synchrotron Radiation Facility (ESRF) beamline ID21 developed a
 full-field method for X-ray absorption near-edge spectroscopy
 (XANES) \cite{andrade,fullfield}. 
-In this experiment (Figure \ref{setup}), for each energy point across a given K-
-or L-edge, a couple of magnified 2D transmission image, with and without the sample, 
-are acquired by a camera coupled with an 
+In this experiment (Figure \ref{setup}), for each energy point across a given
+absorption edge, a couple of magnified 2D transmission image, with and
+without the sample, are acquired by a camera coupled with an 
 X-ray scintillator and magnifying visible light optics.
 For each image with the sample, a \emph{flat field} image, recorded
 without the sample, as to be taken before the beam drifts and is used for
 normalization.
 A XANES stack consists of a series of normalized images that characterize the
 sample absorption across the absorption edge of interest, each pixel being a
-point in the XANES spectrum (after taking the negative logarithm of the
-intensity).
+point in the XANES spectrum; after taking the negative logarithm of the
+intensity.
 Since the sample has to be moved in and out of the beam for every frame, a
 realignment procedure has to be performed for each of them.
 
@@ -83,26 +88,43 @@ spectroscopy experiment at ID21.}
 \end{center}
 \end{figure}
 
-\section{Image alignemnt algorithm}
+\section{Image alignment algorithm}
 
 \subsection{The limits of phase correlation}
 
-Phase correlation (in Fourier space) has extensively been used during the
-development of FFXAS for stack alignment, however this algorithm is limited to
+Phase correlation (in Fourier space, see equation \ref{phasecor}) has
+extensively been used during the development of FFXAS for stack alignment, however this algorithm is limited to
 translation movement and turned out to be very sensitive to artifacts, such as:
 intensity difference on the image border, defects in the scintillator or on
 the camera, etc.
+\begin{equation}
+\label{phasecor}
+$$offset =
+argmax_{x,y}[\mathcal{F}^{-1}(\mathcal{F}(img1)\times\mathcal{F}(img2)^*)]$$
+\end{equation}
+
+
 These defects could be corrected by some sample
 specific pre-processing like border cropping and apodisation.
 However, in order to make this procedure automatic and suppress human intervention, we
 have considered image alignment based on keypoints extraction. 
 
 
-\subsection{Image registration algorithm}
+\subsection{Feature-based image registration algorithm}
 
-The SIFT algorithm \cite{Lowe99,Lowe04}, initially developed
-for image registration and widely used for panoramic image stitching has been
-adapted to FFXAS from the IPOL implementation \cite{ASIFT}.
+Feature-based methods establish a correspondence between a
+number of especially distinct points in images. 
+Those keypoints are composed of position on the image 
+$x$ and $y$, a scale representing the $scale$ of the feature and it's
+orientation, or $angle$. This makes those keypoints naturally robust to
+translation, rotation and change of scale.
+In addition, each keypoint contains a descriptor which represents the
+orientation in the neighbourhood of the keypoint and is used when matching
+keypoints.
+
+The SIFT algorithm \cite{Lowe99,Lowe04}, initially developed for image
+registration and widely used for panoramic image stitching has been adapted to
+FFXAS from the IPOL implementation \cite{ASIFT}.  
 Another registration algorithm, SURF (for Speeded Up Robust Feature
 \cite{surf}), has been evaluated: it produces fewer keypoints with a keypoint
 descriptor twice smaller than SIFT.
@@ -110,25 +132,34 @@ While being faster than SIFT and patent-free, this algorithm was not
 retained due to its inadequate descriptor size (64 bytes instead of 128)
 making matching less reliable.
 
-Stack alignment obtained with SIFT in FFXAS are comparable in terms of
-quality to phase correlation while exhibiting very good robustness
-to artifacts.
-Moreover, keypoints in some defective regions of the image could be
-discarded easily using a mask.
+Initially, the image offset was obtained from the median of the
+difference in position of keypoint within a pair of matched keypoint.
+Knowing the correspondence between a set of keypoints in images,
+more sophisticated transformation patterns like rotation, affine 
+or projective transformation can be envisaged, after the least-square fit of the
+transformation parameters on the matched keypoints.
 
-Figure \ref{sample} represents the X-Ray transmission (at the K edge of Sulfure)
-of a grain of a painting pigment used by Matisse in ??? and embedded in a solid
-matrix. 
+Stack alignment obtained with SIFT after simple translation in FFXAS are
+comparable in terms of quality to phase correlation while exhibiting very good
+robustness to artifacts.
+ 
+Moreover, one could want to exclude (mask out) regions containing features
+specific to the scintillator or at the opposit only keep keypoints located
+inside a region of interest (with an arbitrary shape). 
+This is easily possible by removing keypoints in unwanted regions:
+Figure \ref{sample} is a typical frame extracted from a XANES stack, 
+represents the X-Ray
+transmission (at the K edge of sulfure) of a grain of a painting pigment used by Matisse in ??? and embedded in a solid
+matrix, after image normalization.  
 Few artifacts on the scintillator are also visible. 
-Each arrow represents a keypoint, as extracted by the SIFT algorihm, arrow in
+Each arrow represents a keypoint, as extracted by the SIFT algorithm, arrows in
 red are inside the region of interest (i.e. on the sample) 
 while those in blue are outside this region and
-correspond either to feature of the resine (matrix) or to feature present on the
-scintillator (which needs to me removed).
-A keypoint is characterized by its position, its orientation and scale, and a
-128-byte descripor.
+correspond either to feature of the resin (matrix) or to feature present on the
+scintillator (which needs absolutely to me removed).
 Here, the size of the arrow is proportional to the scale of the feature
-detected and its direction is function of features' orientaton.
+detected and its direction is the same as the orientation of the feature as
+given by the SIFT algorithm.
  
 \begin{figure}
 \begin{center}
@@ -140,18 +171,6 @@ those corresponding to the sample and in blue those from artifacts.}
 \end{figure}
 
 
-Currently used at ESRF beamline ID21, the SIFT implementation takes about 8
-seconds per 4 Mpixel frame  (a stack can contain up to  500 frames) using
-a single core.
-Although the process is distributed using the EDNA framework \cite{edna} on a
-16-core computer, the performance limits are constraining.
-Image alignment being a crucial step in data pre-processing, we parallelized the
-SIFT algorithm to benefit from modern largely parallel
-hardware like graphics cards (GPU) to achieve a faster data rate.
-With the advent of high-performance GPU computing, several scientific data
-analysis programs for synchrotron radiation applications have already
-implemented effective parallelization schemes
-\cite{pynx,pyfai,pyhst2}.
 
 \subsection{SIFT algorithm overview}
 SIFT is an algorithm in computer vision which can be used for image alignment
@@ -240,18 +259,37 @@ The histogram is weighted by the gradient magnitudes and the current scale
 factor in order for the descriptor to be robust with respect to rotation,
 illumination, translation and scaling.
 
-A SIFT keypoint is thus composed of 4 floating point values: $x, y, scale$ and
-$angle$, plus a descriptor of 128 8-bit integers representing the
-orientation in the neighbourhood of the keypoint.
 
 \section{Implementation}
+
 While the phase correlation algorithm has been easily ported on graphics card
 thanks to PyCUDA \cite{pyopencl} and cuFFT, and hence it is very fast and well
 suited for online data pre-processing;
-the SIFT algorithm is much more complicated and the implementation available
-\cite{ASIFT} was single threaded only. SIFT\_PyOCL is a Python library
-implementating this algoritm for GPU and other massively parallel compute
-devices.
+the SIFT implementation used at ESRF beamline ID21, based on \cite{ASIFT}, 
+takes about 8 seconds per 4 Mpixel frame  (a stack can contain up to  500 frames) using
+a single core.
+Although the process is distributed using the EDNA framework \cite{edna} on a
+16-core computer, the performance limits are constraining.
+
+The SIFT algorithm, which is much more complicated than the phase
+correlation algorithm, needed to be parallelized to benefit as well from modern
+largely parallel hardware like graphics cards (GPU) to achieve the required 
+data rate.
+
+SIFT\_PyOCL is a Python library implementating this algoritm for GPU
+and other massively parallel compute devices.
+
+
+%Image alignment being a crucial step in data pre-processing, we parallelized
+% the SIFT algorithm to benefit from modern largely parallel
+%hardware like graphics cards (GPU) to achieve a faster data rate.
+%With the advent of high-performance GPU computing, several scientific data
+%analysis programs for synchrotron radiation applications have already
+%implemented effective parallelization schemes
+%\cite{pynx,pyfai,pyhst2}.
+
+
+
 
 
 \subsection{Parallelization of the algorithm}
@@ -380,12 +418,12 @@ correction to the frame [11], returning the corrected frame (execution time:
 The SIFT\_PyOCL implementation has been compared with the SIFT
 implementation from \cite{ASIFT} found on the IPOL server (reference
 implementation) on a dual Intel E5-2667 (12 cores, 2.90GHz) with an Nvidia Tesla
-K20m computer, Informations are summarized in Table \ref{bench}.
+K20m computer, Execution speed are summarized in Table \ref{bench}.
 The acceleration measured on large images (more than 10 Mpixels) is between 30
 times and 100 times depending on the image complexity, on the GPU and from 4
 times to 10 times when running on CPU.
 Largest speed-ups have been obtained on large images thanks to the
-great acceleration of gaussian blurrings.
+great acceleration of Gaussian blurring.
 
 \begin{table}
 \caption{Execution time for typical FFXAS images (2560x2160) using different
@@ -423,25 +461,26 @@ images like diffraction patterns.
 
 \section{Future and prospects}
 
+
 Registration of 3-dimentional objects would have a huge application potential,
 especially in the field of tomography and medical images.
-This field of reseach
-is very active in the frame of applied mathematics and computer vision.
+This field of research is very active in the frame of applied mathematics and
+computer vision.
 
 
 \section{Conclusion}
 
 The SIFT algorithm is currently used at the ESRF ID21 beamline for full field
-X-Ray absorption spectroscopy image alignement owing to its robustness against
+X-Ray absorption spectroscopy image alignment owing to its robustness against
 scale, rotation and illumination changes.
-SIFT\_PyOCL has been implemented on
-graphic cards and on multi-core processors, with interesing
-speed-ups.
+The SIFT\_PyOCL Python module implements a parallel version of the SIFT
+algorithm running both on graphic cards and on multi-core processors, with
+interesing speed-ups.
 Its programming interface tried to be simple to use and \emph{pythonic} while
 supporting high performance computing ``under the hood''.
-We believe that it can be
-adopted by other software developers for image alignement purposes.
-This is why the code was made open-source and free for re-distribution.
+We believe it can be adopted by other software developers as general purpose  
+image alignment method; this is why the code was made open-source and free for
+re-distribution.
 
 
 \ack{Acknowledgements}
