@@ -40,7 +40,7 @@ selection of a region of interest for image alignment.
 SIFT\_PyOCL is a Python module implementing a parallel version of this algorithm
 in OpenCL, providing high-speed image registration and alignment both on
 processors and on graphics cards. The performances of the algorithm allows
-online processing of large dataset.
+online processing of large datasets.
 
 \end{abstract}
 
@@ -92,22 +92,25 @@ spectroscopy experiment at ID21.}
 
 \subsection{The limits of phase correlation}
 
-Phase correlation (in Fourier space, see equation \ref{phasecor}) has
+Phase correlation (in Fourier space, see equation \ref{eq:phasecor}) has
 extensively been used during the development of FFXAS for stack alignment, however this algorithm is limited to
 translation movement and turned out to be very sensitive to artifacts, such as:
 intensity difference on the image border, defects in the scintillator or on
 the camera, etc.
-\begin{equation}
+
 \begin{center}
-\label{phasecor}
+\begin{equation}
+\label{eq:phasecor}
 $$offset =
 argmax_{x,y}[\mathcal{F}^{-1}(\mathcal{F}(img1)\times\mathcal{F}(img2)^*)]$$
-\end{center}
 \end{equation}
+\\Where $\mathcal{F}$ is the Fourier transform and $\times$ the elementwise
+product.
+\end{center}
 
 
 These defects could be corrected by some sample
-specific pre-processing like border cropping and apodisation.
+specific pre-processing like border cropping and apodization.
 However, in order to make this procedure automatic and suppress human intervention, we
 have considered image alignment based on keypoints extraction.
 
@@ -117,40 +120,40 @@ have considered image alignment based on keypoints extraction.
 Feature-based registration methods establish a correspondence between a
 number of especially distinct points in images.
 Those keypoints are not only composed of position on the image ($x$ and $y$),
-but also associated to the $scale$ of the feature and it's
-orientation (or $angle$).
-This makes those keypoints naturally robust to
+but also associated to the $scale$ of the feature and its
+orientation (or $angle$);
+making keypoints naturally robust to
 translation, rotation and change of scale.
-In addition, each keypoint contains a descriptor which represents the
-orientation in the neighbourhood of the keypoint and is used when matching
-keypoints.
+In addition, each keypoint is associated to a descriptor specific to the
+neighbourhood of the keypoint and used during the matching procedure. Position,
+scale and angle can further be used for outlier rejection using a RANSAC-like
+algorithm \cite{orsa}.
 
-The SIFT algorithm \cite{Lowe99,Lowe04}, initially developed for image
-registration and widely used for panoramic image stitching has been adapted to
-FFXAS from the IPOL implementation \cite{ASIFT}.
+The SIFT algorithm \cite{Lowe99,Lowe04}, widely used for panoramic image
+stitching, has been adapted to FFXAS from the IPOL implementation \cite{ASIFT}.
 Another registration algorithm, SURF (for Speeded Up Robust Feature
 \cite{surf}), has been evaluated: it produces fewer keypoints with a keypoint
-descriptor twice smaller than SIFT.
+descriptor twice smaller than SIFT (64 bytes instead of 128).
 While being faster than SIFT and patent-free, this algorithm was not
-retained due to its inadequate descriptor size (64 bytes instead of 128)
+retained due to its inadequate descriptor size; 
 making matching less reliable.
 
 Initially, the image offset was obtained from the median of the
 difference in position of keypoint within a pair of matched keypoint.
 Knowing the correspondence between a set of keypoints in images,
 more sophisticated transformation patterns like rotation, affine
-or projective transformation can be envisaged, after the least-square fit of the
+or projective transformation can be envisaged, after a least-square fit of the
 transformation parameters on the matched keypoints.
 Stack alignment obtained with SIFT after simple translation in FFXAS are
 comparable in terms of quality to phase correlation while exhibiting very good
 robustness to artifacts.
 
 Moreover, one could want to exclude (mask out) regions containing features
-specific to the scintillator or at the opposit only keep keypoints located
+specific to the scintillator or at the oposit only keep keypoints located
 inside a region of interest (with an arbitrary shape).
 This is easily possible by removing keypoints in unwanted regions:
-Figure \ref{sample} is a typical frame extracted from a XANES stack:
-it is the normalized X-Ray transmission at the K edge of sulfure of a painting
+figure \ref{sample} is a typical frame extracted from a XANES stack:
+it is the normalized X-Ray transmission at the K edge of sulfur of a painting
 thin section sampled out on the Matisse painting ??? and embedded in
 a pentacrylate resin.
 Few artifacts on the scintillator are visible as well as the resin border.
@@ -160,14 +163,13 @@ while those in blue are outside this region and
 correspond either to feature of the resin (matrix) or to feature present on the
 scintillator (which needs absolutely to me removed).
 Here, the size of the arrow is proportional to the scale of the feature
-detected and its direction is the same as the orientation of the feature as
-given by the SIFT algorithm.
+detected and its direction depends on its orientation, as given by the SIFT algorithm.
 
 \begin{figure}
 \begin{center}
 \includegraphics[width=15cm]{features.eps}
 \caption{\label{sample} X-Ray radiograph of a thin section of painting
-taken at ID21 at the suflure K-edge. Arrows represent the position of SIFT-keypoints, in red
+taken at ID21 at the suflur K-edge. Arrows represent the position of SIFT-keypoints, in red
 those corresponding to the sample and in blue those from artifacts and from
 the matrix.}
 \end{center}
@@ -204,9 +206,9 @@ The image is increasingly blurred, by convolution with gaussian kernels, to
 imitate the scale variations.
 Then, consecutives blurs are substracted to get the so-called differences of
 gaussians (DoG) images where pixels are defined in a 3 dimensional
-scale-space, composed by  their \emph{spacial} positions $(x,y)$ and their
+scale-space, composed by  their \emph{spacial} positions $(x, y)$ and their
 \emph{scale} positions $s$ (related to the blur factor). Keypoints are
-local maxima in this scale-space.
+local maxima in this scale-space $(x, y, s)$.
 %The point :$(x,y,s)$ is a local maximum  if\begin{itemize}
 %\setlength{\itemsep}{1pt}
 %\setlength{\parskip}{0pt}
@@ -280,17 +282,17 @@ correlation algorithm, needed to be parallelized to benefit as well from modern
 largely parallel hardware like graphics cards (GPU) to achieve the required
 data rate.
 
-SIFT\_PyOCL is a Python library implementating this algorithm for GPU
+SIFT\_PyOCL is a Python library implementing this algorithm for GPU
 and other massively parallel compute devices.
-
-
+% With the advent of high-performance GPU computing, several scientific data
+% analysis programs for synchrotron radiation applications have already
+% implemented effective parallelization schemes \cite{pynx,pyfai,pyhst2}
+Like other synchrotron-centric tools \cite{pyhst2,pynx,pyfai} it benefited
+from both a large scientific ecosystem built on NumPy \cite{numpy} and an
+easy to use interface to GPU programming with PyOpenCL \cite{pyopencl}.
 %Image alignment being a crucial step in data pre-processing, we parallelized
 % the SIFT algorithm to benefit from modern largely parallel
 %hardware like graphics cards (GPU) to achieve a faster data rate.
-%With the advent of high-performance GPU computing, several scientific data
-%analysis programs for synchrotron radiation applications have already
-%implemented effective parallelization schemes
-%\cite{pynx,pyfai,pyhst2}.
 
 
 
@@ -339,7 +341,7 @@ devices; the optimal version being selected by the
 Python module based on the \emph{compute capabilities} of the selected device.
 
 
-\subsection{Instalation and usage}
+\subsection{Installation and usage}
 SIFT\_PyOCL, as any Python module, can be installed from its sources,
 available on github \cite{sift_pyocl}.
 Whilst SIFT\_PyOCL is open source and licensed under a very
@@ -397,7 +399,7 @@ A second image is read [6] and its keypoints are extracted [7].
 In [8], a matching object is created, targeted to run on a graphic card.
 Keypoint association is done in [9], returning a numpy array of 66 lines and 2
 columns of matched keypoints (execution time: 2.7 ms), each keypoint having
-attributes $x$, $y$, $scale$ and $angle$ in addition to the descriptor.
+attributes $x$, $y$, $scale$ and $angle$ in addition to the 128-byte descriptor.
 
 \subsubsection{Align an image on a reference}
 \begin{verbatim}
