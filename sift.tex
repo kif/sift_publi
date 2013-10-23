@@ -37,8 +37,8 @@ re-alignment, the Scale Invariant Feature Transform (SIFT) algorithm, which
 is robust to rotation, illumination change, translation and scaling by design,
 presents an additional advantage: alignment can be limited to a region of
 interest.
-In this context, a Python module, named  SIFT\_PyOCL has been developed. 
-It implements a parallel version of the SIFT algorithm in OpenCL, providing
+In this context, a Python module, named  SIFT\_PyOCL has been developed; 
+it implements a parallel version of the SIFT algorithm in OpenCL, providing
 high-speed image registration and alignment both on processors and on graphics cards. 
 The performances of the algorithm allows
 online processing of large datasets.
@@ -76,7 +76,7 @@ recorded without the sample, is used for normalization of the spatial
 variation of the beam intensity. 
 This \emph{flat field} image needs to be acquired at the same energy (to cope
 for the scintillator response) and before the beam drifts, before or
-after the sample the sample is exposed (or both). 
+after the sample is exposed (or both). 
 Since the sample has to be moved in and out of the beam for every frame, a 
 realignment procedure has to be performed for each of them.
 
@@ -131,7 +131,7 @@ making keypoints naturally robust to
 translation, rotation and change of scale.
 In addition, each keypoint is associated to a descriptor specific to the
 neighbourhood of the keypoint and used during the matching procedure. Position,
-scale and angle can be further used for filtering out outliers, for example by
+scale and angle can be further used for filtering-out outliers, for example by
 using a RANSAC-like algorithm \cite{orsa}.
 
 The SIFT algorithm \cite{Lowe99,Lowe04}, widely used for panoramic image
@@ -140,8 +140,9 @@ Another registration algorithm, SURF (for Speeded Up Robust Feature
 \cite{surf}), has been evaluated: it produces fewer keypoints with a keypoint
 descriptor twice smaller than SIFT (64 bytes instead of 128).
 While being faster than SIFT and patent-free, this algorithm was not
-retained due to its inadequate descriptor size; 
-making matching less reliable.
+retained:  due to some coarse approximation in the bluring procedure
+(box-filtering) and its inadequate descriptor size; making matching less
+reliable.
 
 Initially, the image offset was obtained from the median of the
 difference in position of keypoint within a pair of matched keypoint.
@@ -171,16 +172,16 @@ it is the normalized X-Ray transmission at the K edge of sulfur
 % thin section sampled out on the Matisse painting ??? and embedded in
 % a pentacrylate resin.
 of a resin-based thin-section 
-(15µm) of Matisse’s Pitcher with Flowers fragment, from Barnes 
-foundation, (1906-7) analyzed in the framework of studying the yellow 
-cadmium pigment degradation in historical paintings.
+(15µm) of Matisse’s \emph{Flowers in a Pitcher} (1906) fragment, from Barnes 
+foundation (accession number 205) analyzed in the framework of studying the
+yellow cadmium pigment degradation in historical paintings.
 
 Few artifacts on the scintillator are visible as well as the resin border.
 Each arrow on the figure represents a keypoint, as extracted by the SIFT
 algorithm, arrows in red are inside the region of interest (i.e. on the sample)
 while those in blue are outside this region and
 correspond either to feature of the resin (matrix) or to feature present on the
-scintillator (which needs absolutely to me removed).
+scintillator (which needs absolutely to be removed).
 Here, the size of the arrow is proportional to the scale of the feature
 detected and its direction depends on its orientation, as given by the SIFT algorithm.
 
@@ -311,8 +312,8 @@ and other massively parallel compute devices.
 % analysis programs for synchrotron radiation applications have already
 % implemented effective parallelization schemes \cite{pynx,pyfai,pyhst2}
 Like other synchrotron-centric tools \cite{pyhst2,pynx,pyfai} it benefited
-from both a large scientific ecosystem built on NumPy \cite{numpy} and an
-easy to use interface to GPU programming with PyOpenCL \cite{pyopencl}.
+from both a large scientific ecosystem built on NumPy \cite{numpy} and from
+the high-performance computing capabilities of graphics cards.
 %Image alignment being a crucial step in data pre-processing, we parallelized
 % the SIFT algorithm to benefit from modern largely parallel
 %hardware like graphics cards (GPU) to achieve a faster data rate.
@@ -338,8 +339,8 @@ using bi-linear interpolation.
 %All the steps, from descriptor computation to images alignment, are done on the device to benefit from its parallelism.
 
 Unlike existing parallel versions of SIFT \cite{lu,rister,vasilyev}, the entire
-process is done on the device to avoid time-consuming transfers between CPU and
-GPU.
+process is done on the device to avoid time-consuming transfers between
+central memory and device's memory.
 This leads to several subtle tasks like the use of \emph{atomic} instructions,
 or writing different versions of the same kernel to adapt it to various
 platforms (CPU or GPU) and devices (e.g. \emph{compute capabilities} for
@@ -358,8 +359,8 @@ The parallel implementation of the last steps (orientation assignment and
 descriptors computation) was more complex.
 For a given kernel, the performances strongly depend on the image
 complexity and on the device the code is executed on.
-Consequently, different versions have been written, each adapted to
-different platforms and
+Consequently, different versions have been written for a given kernel, each
+adapted to different platforms and
 devices; the optimal version being selected by the
 Python module based on the \emph{compute capabilities} of the selected device.
 
@@ -407,7 +408,7 @@ absorption image is read in [2]. The SIFT\_PyOCL library is loaded in [3] and th
 GPU is initialized in [4] with all memory allocated on the device (depending on
 the image size).
 In [4], the keypoint extraction takes 60 ms for a
-4 Mpixel image and returns a 261 keypoints vector as a numpy array named
+4 mega-pixel image and returns a 261 keypoints vector as a numpy array named
 \emph{kp1} (depending on the image).
 %This figure varies a lot from sample to sample.
 
@@ -520,8 +521,8 @@ of developing the full field XAS technique.
 In the instrumentation division (ISDD) we would like to thank Claudio Ferrero,
 head of data analysis unit, and Andy G\"otz, head of software group, for
 supporting the parallelization work on this algorithm.
-The authors would like the Barnes foundation for providing the painting fragment
-which was used as example in this article but was originally studied to
+The Barnes foundation is also acknowledged for providing the painting fragment
+which was used as example in this article and was originally studied to
 understand the degradation of cadmium based pigments.
 \bibliographystyle{iucr}
 \bibliography{biblio}
