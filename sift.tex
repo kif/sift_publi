@@ -9,8 +9,8 @@
 
 \begin{document}
 
-\title{Full-field X-Ray absorption spectroscopy: Image stack
-alignment using SIFT\_PyOCL}
+\title{Image stack alignment Full-field X-Ray absorption spectroscopy using
+SIFT\_PyOCL}
 \shorttitle{SIFT\_PyOCL}
 
     \author[a]{Pierre}{Paleo}
@@ -33,32 +33,31 @@ of millions of spectra in minutes. However, it requires an image alignment
 procedure, at the sub-pixel precision, during the building of the hyperspectral
 image.
 While the phase correlation algorithm has originally been used for image
-re-alignment, the Scale Invariant Feature Transform (SIFT) algorithm, which
-is robust to rotation, illumination change, translation and scaling by design,
-presents an additional advantage: alignment can be limited to a region of
-interest.
+re-alignment using translations, the Scale Invariant Feature Transform (SIFT)
+algorithm, which is robust to rotation, illumination change, translation and
+scaling by design, presents an additional advantage: alignment can be limited to
+a region of interest with any arbitrary shape.
 In this context, a Python module, named  SIFT\_PyOCL has been developed; 
 it implements a parallel version of the SIFT algorithm in OpenCL, providing
 high-speed image registration and alignment both on processors and on graphics cards. 
-The performances of the algorithm allows
-online processing of large datasets.
+The performance of the algorithm allows online processing of large datasets.
 
 \end{abstract}
 
 \section{Introduction}
 
-Image alignment is required on many synchrotron beamlines, for
+Image alignment is required at many synchrotron beamlines and for
 various techniques like speckle images reconstruction in the field of coherent
 X-ray diffraction imaging (CXDI) with module based pixel detectors or image
 stack alignment for full-field X-ray absorption spectroscopy (FFXAS); or
 simply to re-position a sample on the experimental stage using visible light.
 
 After a short presentation of the FFXAS
-experiment setup (based on the design of ESRF-ID21) where image alignment is a
+experimental setup (based on the design of ESRF-ID21) where image alignment is a
 crucial part of the pre-processing, image registration algorithms (based on
 keypoint extraction) will be compared to phase correlation algorithm through
 application on a historical paintings example.
-Finally, SIFT\_PyOCL, the parallel version of the SIFT algorithm  we developed
+Finally, SIFT\_PyOCL, the parallel version of the SIFT algorithm we developed
 will be presented; describing some implementation details, how to use it
 with a short tutorial and some benchmark figures in the scope of the data
 pre-processing of the FFXAS experiment.
@@ -98,18 +97,28 @@ number of frames in the stack and on the energy steps of the monochromator.
 
 \subsection{The limits of phase correlation}
 
-Phase correlation (in Fourier space, see equation \ref{eq:phasecor}) has
-extensively been used during the development of FFXAS for stack alignment, however this algorithm is limited to
-translation movement and turned out to be very sensitive to artifacts, such as:
-intensity difference on the image border, defects in the scintillator or on
-the camera, etc.
+Image Correlation and phase correlation obtained in Fourier space (see eq.
+\ref{eq:imgcor} and \ref{eq:phasecor}) have
+extensively been used during the development of FFXAS for stack alignment (the
+second being an adaptation of the fist), however they are limited
+to translation movement and turned out to be very sensitive to artifacts, such as:
+intensity difference on the image border, defects in the
+scintillator  or on the camera\footnote{While those artifacts are weakened by
+the flat-field nomalization, they can still remain and disturb the alignment.}, etc.
 
 \begin{center}
 \begin{equation}
-\label{eq:phasecor}
-$$offset =
+\label{eq:imgcor}
+$$offset_{img cor} =
 argmax_{x,y}[\mathcal{F}^{-1}(\mathcal{F}(img1)\times\mathcal{F}(img2)^*)]$$
 \end{equation}
+\begin{equation}
+\label{eq:phasecor}
+$$offset_{phase cor} =
+argmax_{x,y}[\mathcal{F}^{-1}(\frac{\mathcal{F}(img1)}{|\mathcal{F}(img1)|}
+\times\frac{\mathcal{F}(img2)^*)}{|\mathcal{F}(img2)|})]$$
+\end{equation}
+
 \\Where $\mathcal{F}$ is the Fourier transform and $\times$ the element-wise
 product.
 \end{center}
@@ -117,7 +126,7 @@ product.
 These defects could be corrected by some sample
 specific pre-processing like border cropping and apodization.
 However, in order to make this procedure automatic and suppress human
-intervention, image alignement based on keypoints exctraction has been
+intervention, image alignment based on keypoints exctraction has been
 considered.
 
 \subsection{Feature-based image registration algorithm}
@@ -292,8 +301,8 @@ illumination, translation and scaling.
 
 \section{Implementation}
 
-While the phase correlation algorithm has been easily ported on graphics card
-thanks to PyCUDA \cite{pyopencl} and cuFFT, and hence it is very fast and well
+While image and phase correlation algorithms have been easily ported on
+graphics card thanks to PyCUDA \cite{pyopencl} and cuFFT, and hence it is very fast and well
 suited for online data pre-processing;
 the SIFT implementation used at ESRF beamline ID21, based on \cite{ASIFT},
 takes about 8 seconds per 4 mega-pixel frame  (a stack can contain up to  500
@@ -369,15 +378,18 @@ Python module based on the \emph{compute capabilities} of the selected device.
 SIFT\_PyOCL, as any Python module, can be installed from its sources,
 available on github \cite{sift_pyocl}.
 Whilst SIFT\_PyOCL is open source and licensed under a very
-permissive BSD license, the SIFT algorithm itself is
+permissive MIT license, the SIFT algorithm itself is
 patented by the University of Columbia \cite{SIFT_pat}.
-Nevertheless this patent does not apply in Europe.
+Nevertheless this patent only applies in the United States of America
+(it does not appear to be extended to other countries) and its use is allowed
+for academic research purposes (personal communication from the author).
 
 Beside Python (version 2.6 or 2.7) and NumPy, SIFT\_PyOCL needs
 PyOpenCL.
 It was tested on the OpenCL drivers from Nvidia on a
-large variety of their GPUs (Tesla, Fermi and Kepler generations) and on
-multi-core processors with drivers from Intel and AMD.
+large variety of their GPUs (Tesla, Fermi and Kepler generations), on
+accelerator cards like the Intel Xeon Phi,  and on multi-core processors with
+drivers from Intel, AMD and Apple. 
 The full installation procedure is simply (including testing):
 \begin{verbatim}
 $ python setup.py build test install
@@ -491,6 +503,9 @@ images like diffraction patterns.
 
 \section{Future and prospects}
 
+Sift_PyOCL has been included into the PyMca imaging tool \cite{pymca} in release
+4.7  as a plugin for image stack alignement; providing a graphical
+interface and making it easier to use.
 
 Registration of 3-dimensional objects would have a huge application potential,
 especially in the field of tomography and medical images.
