@@ -379,13 +379,15 @@ SIFT\_PyOCL, as any Python module, can be installed from its sources,
 available on github \cite{sift_pyocl}.
 Whilst SIFT\_PyOCL is open source and licensed under a very
 permissive MIT license, the SIFT algorithm itself is
-patented by the University of Columbia \cite{SIFT_pat}.
-Nevertheless this patent only applies in the United States of America
-(it does not appear to be extended to other countries) and its use is allowed
-for academic research purposes (personal communication from the author).
+patented by the University of British Columbia \cite{SIFT_pat}.
+This patent apparently applies only in the United States of America
+(and was not extended to other countries) and even there, its use is
+tolerated for academic research purposes (personal communication from the
+author). For all other use, please contact the university-industry liaison
+office of the University of British Columbia. 
 
 Beside Python (version 2.6 or 2.7) and NumPy, SIFT\_PyOCL needs
-PyOpenCL.
+PyOpenCL; all of them being available on Windows, Linux and MacOSX. 
 It was tested on the OpenCL drivers from Nvidia on a
 large variety of their GPUs (Tesla, Fermi and Kepler generations), on
 accelerator cards like the Intel Xeon Phi,  and on multi-core processors with
@@ -393,10 +395,10 @@ drivers from Intel, AMD and Apple.
 The full installation procedure is simply (including testing):
 \begin{verbatim}
 $ python setup.py build test install
-\end{verbatim}
+\end{verbatim} 
 Every single OpenCL kernel has been tested versus the reference
 implementation and can be run without installing the library by
-executing $test/test\_all.py$.
+executing $test/test\_all.py$. 
 %(nota: not all kernels can run on all devices
 %due to computing capabilities restrictions).
 
@@ -504,8 +506,8 @@ images like diffraction patterns.
 \section{Future and prospects}
 
 Sift_PyOCL has been included into the PyMca imaging tool \cite{pymca} in release
-4.7  as a plugin for image stack alignement; providing a graphical
-interface and making it easier to use.
+4.7 as a plugin for image stack alignment; providing a nice graphical
+interface which makes image stack alignment both intuitive and easy to use.
 
 Registration of 3-dimensional objects would have a huge application potential,
 especially in the field of tomography and medical images.
