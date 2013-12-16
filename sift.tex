@@ -30,12 +30,12 @@ a Python-OpenCL implementation of this algorithm.
 \begin{abstract}
 The full-field X-ray absorption spectroscopy experiment allows the acquisition
 of millions of spectra in minutes. However, it requires an image alignment
-procedure, at the sub-pixel precision, during the building of the hyperspectral
-image.
+procedure with sub-pixel precision during the building of the
+hyperspectral image.
 While the phase correlation algorithm has originally been used for image
 re-alignment using translations, the Scale Invariant Feature Transform (SIFT)
-algorithm, which is robust to rotation, illumination change, translation and
-scaling by design, presents an additional advantage: alignment can be limited to
+algorithm, which is by design robust to rotation, illumination change,
+translation and scaling, presents an additional advantage: alignment can be limited to
 a region of interest with any arbitrary shape.
 In this context, a Python module, named  SIFT\_PyOCL has been developed; 
 it implements a parallel version of the SIFT algorithm in OpenCL, providing
@@ -55,8 +55,11 @@ simply to re-position a sample on the experimental stage using visible light.
 After a short presentation of the FFXAS
 experimental setup (based on the design of ESRF-ID21) where image alignment is a
 crucial part of the pre-processing, image registration algorithms (based on
-keypoint extraction) will be compared to phase correlation algorithm through
-application on a historical paintings example.
+keypoint extraction) will 
+be compared to the phase correlation algorithm through application to an example
+using FFXAS data collected for historical paintings.
+% be compared to phase correlation algorithm through
+% application on a historical paintings example.
 Finally, SIFT\_PyOCL, the parallel version of the SIFT algorithm we developed
 will be presented; describing some implementation details, how to use it
 with a short tutorial and some benchmark figures in the scope of the data
@@ -67,44 +70,49 @@ At the European Synchrotron Radiation Facility (ESRF), the beamline ID21
 recently developed a full-field method for X-ray absorption near-edge
 spectroscopy (XANES) \cite{andrade,fullfield}.
 In this experiment (Figure \ref{setup}), for each energy point across a given
-absorption edge, a couple of magnified 2D transmission image, with and
+absorption edge, a couple of magnified 2D transmission images, with and
 without the sample, are acquired by a camera coupled with an
 X-ray scintillator and magnifying visible light optics.
 For each sample transmission image, a \emph{flat field} image,
 recorded without the sample, is used for normalization of the spatial
 variation of the beam intensity. 
 This \emph{flat field} image needs to be acquired at the same energy (to cope
-for the scintillator response) and before the beam drifts, before or
+with the scintillator response) and before the beam drifts, before or
 after the sample is exposed (or both). 
 Since the sample has to be moved in and out of the beam for every frame, a 
 realignment procedure has to be performed for each of them.
 
 \begin{figure}
+\label{setup}
 \begin{center}
 \includegraphics[width=15cm]{setup.eps}
-\caption{\label{setup} Experimental setup of the Full-Field X-ray absorption
+\caption{Experimental setup of the Full-Field X-ray absorption
 spectroscopy experiment at ID21.}
 \end{center}
 \end{figure}
 
- A 2D-XANES stack consists of a series of normalized images that
+A 2D-XANES stack consists of a series of normalized images that
 characterize the sample absorption across the absorption edge of interest, each pixel of the
 stack containing a full XANES spectrum; after taking the negative logarithm
-of the intensity. The energy resolution of the XANES spectrum depends on the
-number of frames in the stack and on the energy steps of the monochromator.
+of the intensity. 
+%The energy resolution of the XANES spectrum depends on the
+%number of frames in the stack and on the energy steps of the monochromator.
+The energy resolution of the XANES spectrum depends on the number of frames in
+the stack and therefore is only limited by the energy resolution of the monochromator.
 
 \section{Image alignment algorithm}
 
 \subsection{The limits of phase correlation}
 
-Image Correlation and phase correlation obtained in Fourier space (see eq.
+Image correlation and phase correlation obtained in Fourier space (see eq.
 \ref{eq:imgcor} and \ref{eq:phasecor}) have
-extensively been used during the development of FFXAS for stack alignment (the
-second being an adaptation of the fist), however they are limited
-to translation movement and turned out to be very sensitive to artifacts, such as:
+extensively been used during the development of FFXAS for image-stack alignment
+(the second being an optimisation of the fistone), however they are
+limited to translation movement and turned out to be very sensitive to artifacts, such as:
 intensity difference on the image border, defects in the
-scintillator  or on the camera\footnote{While those artifacts are weakened by
-the flat-field nomalization, they can still remain and disturb the alignment.}, etc.
+scintillator or on the camera\footnote{While those artifacts are weakened by
+the flat-field normalization, they can still remain and disturb the alignment.},
+etc.
 
 \begin{center}
 \begin{equation}
@@ -169,7 +177,7 @@ Regions containing features non characteristic of the sample, e.g. scintillator
 specific, may be removed, or, at the opposit, keypoints located within the 
 region of interest may be selected (with an arbitrary shape).
 This possibility is illustrated through experimental case: Figure
-\ref{sample}
+\ref{fig:sample}
 % Moreover, one could want to exclude (mask out) regions containing features
 % specific to the scintillator or at the oposit only keep keypoints located
 % inside a region of interest (with an arbitrary shape).
@@ -195,9 +203,10 @@ Here, the size of the arrow is proportional to the scale of the feature
 detected and its direction depends on its orientation, as given by the SIFT algorithm.
 
 \begin{figure}
+\label{fig:sample}
 \begin{center}
 \includegraphics[width=15cm]{features.eps}
-\caption{\label{sample} X-Ray radiograph of a thin section of painting
+\caption{ X-Ray radiograph of a thin section of painting
 taken at ID21 at the suflur K-edge. Arrows represent the position of
 SIFT-keypoints, in red those corresponding to the sample and in blue those from artifacts and from
 the matrix.}
