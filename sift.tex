@@ -9,7 +9,7 @@
 
 \begin{document}
 
-\title{Image stack alignment Full-field X-Ray absorption spectroscopy using
+\title{Image stack alignment in full-field X-Ray absorption spectroscopy using
 SIFT\_PyOCL}
 \shorttitle{SIFT\_PyOCL}
 
@@ -37,9 +37,9 @@ re-alignment using translations, the Scale Invariant Feature Transform (SIFT)
 algorithm, which is by design robust to rotation, illumination change,
 translation and scaling, presents an additional advantage: alignment can be limited to
 a region of interest with any arbitrary shape.
-In this context, a Python module, named  SIFT\_PyOCL has been developed; 
+In this context, a Python module, named  SIFT\_PyOCL has been developed;
 it implements a parallel version of the SIFT algorithm in OpenCL, providing
-high-speed image registration and alignment both on processors and on graphics cards. 
+high-speed image registration and alignment both on processors and on graphics cards.
 The performance of the algorithm allows online processing of large datasets.
 
 \end{abstract}
@@ -55,7 +55,7 @@ simply to re-position a sample on the experimental stage using visible light.
 After a short presentation of the FFXAS
 experimental setup (based on the design of ESRF-ID21) where image alignment is a
 crucial part of the pre-processing, image registration algorithms (based on
-keypoint extraction) will 
+keypoint extraction) will
 be compared to the phase correlation algorithm through application to an example
 using FFXAS data collected for historical paintings.
 % be compared to phase correlation algorithm through
@@ -75,11 +75,11 @@ without the sample, are acquired by a camera coupled with an
 X-ray scintillator and magnifying visible light optics.
 For each sample transmission image, a \emph{flat field} image,
 recorded without the sample, is used for normalization of the spatial
-variation of the beam intensity. 
+variation of the beam intensity.
 This \emph{flat field} image needs to be acquired at the same energy (to cope
 with the scintillator response) and before the beam drifts, before or
-after the sample is exposed (or both). 
-Since the sample has to be moved in and out of the beam for every frame, a 
+after the sample is exposed (or both).
+Since the sample has to be moved in and out of the beam for every frame, a
 realignment procedure has to be performed for each of them.
 
 \begin{figure}
@@ -94,7 +94,7 @@ spectroscopy experiment at ID21.}
 A 2D-XANES stack consists of a series of normalized images that
 characterize the sample absorption across the absorption edge of interest, each pixel of the
 stack containing a full XANES spectrum; after taking the negative logarithm
-of the intensity. 
+of the intensity.
 %The energy resolution of the XANES spectrum depends on the
 %number of frames in the stack and on the energy steps of the monochromator.
 The energy resolution of the XANES spectrum depends on the number of frames in
@@ -107,7 +107,7 @@ the stack and therefore is only limited by the energy resolution of the monochro
 Image correlation and phase correlation obtained in Fourier space (see eq.
 \ref{eq:imgcor} and \ref{eq:phasecor}) have
 extensively been used during the development of FFXAS for image-stack alignment
-(the second being an optimisation of the fistone), however they are
+(the second being an optimisation of the fist one), however they are
 limited to translation movement and turned out to be very sensitive to artifacts, such as:
 intensity difference on the image border, defects in the
 scintillator or on the camera\footnote{While those artifacts are weakened by
@@ -126,7 +126,6 @@ $$offset_{phase cor} =
 argmax_{x,y}[\mathcal{F}^{-1}(\frac{\mathcal{F}(img1)}{|\mathcal{F}(img1)|}
 \times\frac{\mathcal{F}(img2)^*)}{|\mathcal{F}(img2)|})]$$
 \end{equation}
-
 \\Where $\mathcal{F}$ is the Fourier transform and $\times$ the element-wise
 product.
 \end{center}
@@ -165,43 +164,43 @@ reliable.
 Initially, the image offset between a given frame and a reference frame (i.e.
 the translation to apply to shift the frame) was obtained from the median
 of the difference in keypoint positions for all matched keypoints. The median
-turned out to be more reliable than the mean when false-match were present. 
+turned out to be more reliable than the mean when false-match were present.
 Knowing the correspondence between a set of keypoints in images, more
 sophisticated transformation patterns like rotation, affine or projective
-transformation can be envisaged, after a least-squares fit of the 
-transformation parameters on the matched keypoints. 
+transformation can be envisaged, after a least-squares fit of the
+transformation parameters on the matched keypoints.
 Stack alignment of FFXAS data as obtained by SIFT using simple translation is
 comparable to phase correlation in terms of quality while exhibiting very good
-robustness against artifacts. 
+robustness against artifacts.
 % Stack alignment obtained with SIFT after simple translation in FFXAS are
 % comparable in terms of quality to phase correlation while exhibiting very good
-% robustness to artifacts. 
+% robustness to artifacts.
 The only counter example where phase correlation gave
 better alignment than SIFT was with a frames where the sample was very dark
 (little transmission) with very few characteristic features and some part of the
 frame with direct beam (like an overexposed back light photograph).
 
-Moreover, the possibility to remove easily keypoints in unwanted regions of 
-the image is a major asset. 
+Moreover, the possibility to remove easily keypoints in unwanted regions of
+the image is a major asset.
 % Regions containing features non characteristic for the sample e.g. scintillator
 % specific features, may be removed, or, vice-versa, keypoints located within the region of interest (with an arbitrary shape) may be selected.
-Regions containing features non characteristic of the sample, e.g. scintillator 
-specific, may be removed, or, alternatively, keypoints located within the 
+Regions containing features non characteristic of the sample, e.g. scintillator
+specific, may be removed, or, alternatively, keypoints located within the
 region of interest (with an arbitrary shape) may be selected.
 
 This possibility is illustrated in Figure \ref{fig:sample} showing a typical
-frame extracted from a XANES stack. 
+frame extracted from a XANES stack.
 The image represents the normalized X-Ray transmission of the sample at 2.46
-keV. 
+keV.
 The image stack, composed of 346 frames was collected at the K edge of sulfur
 (2.45-2.66 keV) for a resin-based thin-section
 % … This possibility is illustrated through experimental case: Figure
 % \ref{fig:sample} is a typical frame extracted from a XANES stack:
-% it is the normalized X-Ray transmission at the K edge of sulfur 
+% it is the normalized X-Ray transmission at the K edge of sulfur
 % of a painting
 % thin section sampled out on the Matisse painting ??? and embedded in
 % a pentacrylate resin.
-% of a resin-based thin-section 
+% of a resin-based thin-section
 (15 $\mu m$) of Matisse’s \emph{Flowers in a Pitcher} (1906) fragment, from
 Barnes foundation (accession number 205) analyzed in the framework of studying the
 yellow cadmium pigment degradation in historical paintings.
@@ -250,7 +249,7 @@ phase correlation where deviation of more than than 2 pixels have been measured.
 \includegraphics[width=12cm]{alignment.eps}
 \caption{Comparison of the alignment quality obtained from SIFT keypoints
 (on the right) with phase correlation (on the left); all frames aligned on frame
-#11.
+11.
 The color scale indicates the intensity of the derivative of the transmission for
 a vertical line at $x=500, y\in[475, 600]$ in figure \ref{fig:sample}}
 \end{center}
@@ -323,7 +322,7 @@ second-order Taylor development.
 
 \subsubsection{Orientation assignment:}
 In order to make SIFT descriptors invariant to rotation, they are calculated
-relatively to the keypoint orientation; which is obtained using the following
+relative to the keypoint orientation; which is obtained using the following
 procedure.
 % The orientation
 % of each keypoint is calculated so that SIFT descriptors can be invariant to rotation.
@@ -336,7 +335,6 @@ The maximum value of this histogram is the dominant orientation; it is defined
 as the characteristic orientation of the keypoint.
 Additionally, every peak greater than 80\% of the maximum generates a new
 keypoint with a different orientation.
-
 
 
 \subsubsection{Descriptor computation:}
@@ -436,21 +434,21 @@ This patent apparently applies only in the United States of America
 (and was not extended to other countries) and even there, its use is
 tolerated for academic research purposes (personal communication from the
 author). For all other use, please contact the university-industry liaison
-office of the University of British Columbia. 
+office of the University of British Columbia.
 
 Beside Python (version 2.6 or 2.7) and NumPy, SIFT\_PyOCL needs
-PyOpenCL; all of them being available on Windows, Linux and MacOSX. 
+PyOpenCL; all of them being available on Windows, Linux and MacOSX.
 It was tested on the OpenCL drivers from Nvidia on a
 large variety of their GPUs (Tesla, Fermi and Kepler generations), on
 accelerator cards like the Intel Xeon Phi,  and on multi-core processors with
-drivers from Intel, AMD and Apple. 
+drivers from Intel, AMD and Apple.
 The full installation procedure is simply (including testing):
 \begin{verbatim}
 $ python setup.py build test install
-\end{verbatim} 
+\end{verbatim}
 Every single OpenCL kernel has been tested versus the reference
 implementation and can be run without installing the library by
-executing $test/test\_all.py$. 
+executing $test/test\_all.py$.
 %(nota: not all kernels can run on all devices
 %due to computing capabilities restrictions).
 
@@ -515,7 +513,7 @@ The SIFT\_PyOCL implementation has been compared with the SIFT
 implementation from \cite{ASIFT} found on the IPOL server (reference
 implementation) on a dual Intel E5-2667 (12 cores, 2.90GHz) with an Nvidia Tesla
 K20m computer, Execution speed are summarized in Table \ref{bench}.
-The acceleration measured on large images (more than 10 mega-pixels) is between
+The acceleration measured on large images (more than 3 mega-pixels) is between
 30 times and 100 times depending on the image complexity on the GPU, and from 4
 times to 10 times when running on multicore-CPU.
 Largest speed-ups have been obtained on large images thanks to the
@@ -545,10 +543,15 @@ SIFT\_PyOCL  &   Nvidia  &    75 ms  &  5.8 ms & 90 ms\\
 \subsection{Limitations}
 While all calculations are performed in single precision floating point,
 which is compatible even with the oldest graphic cards supported by OpenCL, the
-memory consumption has been traded off for performance: TODO all buffers .
+memory consumption has been traded off for performance: to prevent memory
+allocation on the device at run time (which is very costly), all buffers are
+allocated when the size of the image is given, in advance. If the
+requested device does not have enough memory, the library tries to find another
+one, and is likely to pick the CPU which is slower.
 Moreover, the algorithm is essentially suited
-to linear colour scales; and  not suitable to high dynamic range
-images like diffraction patterns.
+to linear colour scales (due to fixed thresholds); and not suitable to high
+dynamic range images like diffraction patterns or back light images with little
+contrast in dark area.
 % Neverthless, using the difference of gaussian method like in
 % SIFT could be interesting for the extraction of spots for diffraction
 % images.
@@ -556,8 +559,8 @@ images like diffraction patterns.
 
 \section{Future and prospects}
 
-Sift_PyOCL has been included into the PyMca imaging tool \cite{pymca} in release
-4.7 as a plugin for image stack alignment; providing a nice graphical
+SIFT\_PyOCL has been included into the PyMca imaging tool \cite{pymca} in its
+release 4.7 as a plugin for image stack alignment; providing a nice graphical
 interface which makes image stack alignment both intuitive and easy to use.
 
 Registration of 3-dimensional objects would have a huge application potential,
@@ -589,8 +592,12 @@ of developing the full field XAS technique.
 In the instrumentation division (ISDD) we would like to thank Claudio Ferrero,
 head of data analysis unit, and Andy G\"otz, head of software group, for
 supporting the parallelization work on this algorithm.
-The Barnes foundation is also acknowledged for providing the painting fragment
-which was used as example in this article and was originally studied to
+V. Armando Solé, the
+author of PyMca, is also acknowledged for providing a graphical interface to
+this library and for all the debuging work he performed, testing it on all
+operating systems.
+The Barnes foundation is also acknowledged for providing the
+painting fragment which was used as example in this article and was originally studied to
 understand the degradation of cadmium based pigments.
 \bibliographystyle{iucr}
 \bibliography{biblio}
