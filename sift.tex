@@ -188,6 +188,17 @@ Regions containing features non characteristic of the sample, e.g. scintillator
 specific, may be removed, or, alternatively, keypoints located within the
 region of interest (with an arbitrary shape) may be selected.
 
+\begin{figure}
+\label{fig:sample}
+\begin{center}
+\includegraphics[width=15cm]{features.eps}
+\caption{ X-Ray radiograph of a thin section of painting
+taken at ID21 at the suflur K-edge (2.46 keV). Arrows represent the position of
+SIFT-keypoints, in red those corresponding to the sample and in blue those from artifacts and from
+the matrix.}
+\end{center}
+\end{figure}
+
 This possibility is illustrated in Figure \ref{fig:sample} showing a typical
 frame extracted from a XANES stack.
 The image represents the normalized X-Ray transmission of the sample at 2.46
@@ -220,45 +231,37 @@ Here, the size of the arrow is proportional to the scale of the feature
 detected and its direction depends on its orientation, as given by the SIFT algorithm.
 
 \begin{figure}
-\label{fig:sample}
+\label{fig:alignment}
 \begin{center}
-\includegraphics[width=15cm]{features.eps}
-\caption{ X-Ray radiograph of a thin section of painting
-taken at ID21 at the suflur K-edge (2.46 keV). Arrows represent the position of
-SIFT-keypoints, in red those corresponding to the sample and in blue those from artifacts and from
-the matrix.}
+\includegraphics[width=15cm]{alignment_h.eps}
+\caption{Comparison of the alignment quality obtained from correlation method
+(upper) with SIFT method (lower); all frames aligned on
+frame 11. The figure is a vertical slice through the sample of figure
+\ref{fig:sample} at $x=500$ through all frames. To highlight the sample
+boundaries, the $y-$derivative of transmission is represented in false colors.}
 \end{center}
 \end{figure}
 
+
 The XANES stack alignment using phase correlation has failed in this sample,
-probably due to the strong change in intensity on the resin borders, forcing an
-alignment on this line. Figure \ref{fig:alignment} highlights this by taking a
-vertical section of the sample at $x=500$ and $y\in[490, 580]$
-(picture coordinates of figure \ref{fig:sample}) as horizontal axis and the
-frame number on the vertical axis (this is similar to the energy but
-here the step was not kept constant within the energy scan).
-As intensities are changing with energy in XANES, the color of the graphs
-indicates the derivative of the transmission to highlight the sample boundaries.
+maybe due to the strong change in intensity on the resin borders, forcing an
+alignment on this line. An evidence of this poor alignement (at the pixel
+level) is given in figure \ref{fig:alignment} which is a vertical section of the
+3D XANES map: the sample is cut at $x=500$ and $y\in[490, 580]$ (picture
+coordinates of figure \ref{fig:sample}) and the frame number\footnote{The 
+horizontal axis is not given as energy because energy steps were not
+constant in this scan.} is used as horizontal axis.
+To check the alignement, the transission signal has been derived along the
+vertical axis to highlight the sample boundaries.
 When the alignment is perfect, maxima (red lines) and minima (blue lines) of
-the derivative are prefect vertical lines; and this is not the case here for
-phase correlation. Figure \ref{fig:offset} presents the measured offsets with
-both methods. Offsets in horizontal direction ($\delta x$) agree within an error
+the derivative are prefect horizontal lines; and this is not the case
+for this sample using correlation method. Figure \ref{fig:offset}
+presents the measured offsets with both methods. 
+Offsets in horizontal direction ($\delta x$) agree within an error
 lower than 0.5 pixel which is acceptable for the experiment; but offsets in
 vertical direction ($\delta y$) differ sometimes by up to 2 pixels. While
 showing the same trend, the correlation algorithm apparently under-estimate the
 displacement.
-
-\begin{figure}
-\label{fig:alignment}
-\begin{center}
-\includegraphics[width=15cm]{alignment.eps}
-\caption{Comparison of the alignment quality obtained from SIFT keypoints
-(on the right) with phase correlation (on the left); all frames aligned on frame
-11.
-The color scale indicates the intensity of the derivative of the transmission for
-a vertical line at $x=500, y\in[490, 580]$ in figure \ref{fig:sample}.}
-\end{center}
-\end{figure}
 
 \begin{figure}
 \label{fig:offset}
