@@ -120,13 +120,14 @@ Offsets (translations) obtained by image and phase correlations algorithms:
 \begin{equation}
 \label{eq:imgcor}
 offset_{img cor} =
-argmax_{x,y}[\mathcal{F}^{-1}(\mathcal{F}(img1)\times\mathcal{F}(img2)^*)]
+argmax_{x,y}\mathopen{}\left (
+\mathcal{F}^{-1}(\mathcal{F}(img1)\times\mathcal{F}(img2)^*)\mathclose{}\right )
 \end{equation}
 \begin{equation}
 \label{eq:phasecor}
 offset_{phase cor} =
-argmax_{x,y}[\mathcal{F}^{-1}(\frac{\mathcal{F}(img1)}{|\mathcal{F}(img1)|}
-\times\frac{\mathcal{F}(img2)^*)}{|\mathcal{F}(img2)|})]
+argmax_{x,y}\mathopen{}\left (\mathcal{F}^{-1}(\frac{\mathcal{F}(img1)}{|\mathcal{F}(img1)|}
+\times\frac{\mathcal{F}(img2)^*}{|\mathcal{F}(img2)|})\mathclose{}\right )
 \end{equation}
 \\Where $\mathcal{F}$ is the 2D-Fourier transform and $\times$ the element-wise
 product.
@@ -398,7 +399,7 @@ and other massively parallel computing devices.
 % With the advent of high-performance GPU computing, several scientific data
 % analysis programs for synchrotron radiation applications have already
 % implemented effective parallelization schemes \cite{pynx,pyfai,pyhst2}
-Like other synchrotron-centric tools \cite{pyhst2,pynx,pyfai} SIFT_PyOCL
+Like other synchrotron-centric tools \cite{pyhst2,pynx,pyfai} SIFT\_PyOCL
 benefited from both a large scientific ecosystem based on NumPy \cite{numpy}
 and the high-performance computing GPU capabilities.
 %Image alignment being a crucial step in data pre-processing, we parallelized
@@ -549,8 +550,8 @@ Largest speed-ups have been obtained on large images thanks to the
 great acceleration of Gaussian blurring.
 
 \begin{table}
-\caption{Execution time for typical FFXAS images (2560x2160) using different
-implementations on a dual Intel E5-2667 (12 cores, 2.90GHz) with an Nvidia Tesla
+\caption{Execution time for typical FFXAS images ($2560 \times 2160$) using
+different implementations on a dual Intel E5-2667 (12 cores, 2.90GHz) with an Nvidia Tesla
 K20m.}
 \label{bench}
 \vspace{1mm}
