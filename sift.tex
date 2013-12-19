@@ -87,11 +87,11 @@ realignment procedure has to be performed for each of them.
 \begin{center}
 \includegraphics[width=15cm]{setup.eps}
 \caption{Experimental setup of the Full-Field X-ray absorption
-spectroscopy experiment at ID21.}
+spectroscopy experiment at ID21, taken from \cite{fullfield}.}
 \end{center}
 \end{figure}
 
-A 2D-XANES stack consists of a series of normalized images that
+A 3D-XANES stack consists of a series of normalized images that
 characterize the sample absorption across the absorption edge of interest, each pixel of the
 stack containing a full XANES spectrum; after taking the negative logarithm
 of the intensity.
@@ -107,7 +107,7 @@ the stack and therefore is only limited by the energy resolution of the monochro
 Image correlation and phase correlation obtained in Fourier space (see eq.
 \ref{eq:imgcor} and \ref{eq:phasecor}) have
 extensively been used during the development of FFXAS for image-stack alignment
-(the second being an optimisation of the fist one), however they are
+(the second being an optimisation of the first one), however they are
 limited to translation movement and turned out to be very sensitive to artifacts, such as:
 intensity difference on the image border, defects in the
 scintillator or on the camera\footnote{While those artifacts are weakened by
@@ -164,7 +164,7 @@ reliable.
 Initially, the image offset between a given frame and a reference frame (i.e.
 the translation to apply to shift the frame) was obtained from the median
 of the difference in keypoint positions for all matched keypoints. The median
-turned out to be more reliable than the mean when false-match were present.
+turned out to be more reliable than the mean when false-matches were present.
 Knowing the correspondence between a set of keypoints in images, more
 sophisticated transformation patterns like rotation, affine or projective
 transformation can be envisaged, after a least-squares fit of the
@@ -217,15 +217,16 @@ Barnes foundation (accession number 205) analyzed in the framework of studying t
 yellow cadmium pigment degradation in historical paintings.
 
 In this image the brighter top right corner correspond a place where no resin is
-present. Very few scintillator artifacts remain visible (after $flat field$
-normalization), for example in the resin border, the two darker dots are dust on
-sample but there is an horizontal scratch on the scintillator just at their
-left.
+present. Very few scintillator artifacts remain visible after $flat
+field$ normalization.
+% , for example in the resin border, the two darker dots are dust on
+% sample but there is an horizontal scratch on the scintillator just at their
+% left.
 Each arrow on the figure represents a keypoint, as extracted by the SIFT
 algorithm, arrows in red are inside the region of interest (i.e. on the sample)
 while those in blue are outside this region and
 correspond either to features of the resin (matrix) or to features present on
-the scintillator (which needs absolutely to be removed as they do not move
+the scintillator (which need absolutely to be removed as they do not move
 with the sample).
 Here, the size of the arrow is proportional to the scale of the feature
 detected and its direction depends on its orientation, as given by the SIFT algorithm.
@@ -254,7 +255,7 @@ constant in this scan.} is used as horizontal axis.
 To check the alignement, the transission signal has been derived along the
 vertical axis to highlight the sample boundaries.
 When the alignment is perfect, maxima (red lines) and minima (blue lines) of
-the derivative are prefect horizontal lines; and this is not the case
+the derivative are horizontal lines; and this is not the case
 for this sample using correlation method. Figure \ref{fig:offset}
 presents the measured offsets with both methods. 
 Offsets in horizontal direction ($\delta x$) agree within an error
@@ -368,7 +369,7 @@ illumination, translation and scaling.
 
 \section{Implementation}
 
-While image and phase correlation algorithms have been easily ported on
+While correlation algorithms have been easily ported on
 graphics card thanks to PyCUDA \cite{pyopencl} and cuFFT, and hence is very fast and well
 suited for online data pre-processing;
 the SIFT implementation used at ESRF beamline ID21, based on \cite{ASIFT},
@@ -472,8 +473,9 @@ executing $test/test\_all.py$.
 \subsection{Examples}
 
 In this section we have collected some basic examples of how
-SIFT\_PyOCL can be employed; using IPython \cite{ipython} in
-Pylab \cite{matplotlib} mode.
+SIFT\_PyOCL can be used in IPython \cite{ipython} with Pylab \cite{matplotlib}
+mode: a Python interactive interface with scientific visualization
+capabilities.
 
 \subsubsection{Extract keypoints:}
 \begin{verbatim}
@@ -489,7 +491,7 @@ absorption image is read in [2]. The SIFT\_PyOCL library is loaded in [3] and th
 GPU is initialized in [4] with all memory allocated on the device (depending on
 the image size).
 In [4], the keypoint extraction takes 60 ms for a
-4 mega-pixel image and returns a 261 keypoints vector as a numpy array named
+4 megapixels image and returns a 261 keypoints vector as a numpy array named
 \emph{kp1} (depending on the image).
 %This figure varies a lot from sample to sample.
 
@@ -564,11 +566,11 @@ memory consumption has been traded off for performance: to prevent memory
 allocation on the device at run time (which is very costly), all buffers are
 allocated when the size of the image is given, in advance. If the
 requested device does not have enough memory, the library tries to find another
-one, and is likely to pick the CPU which is slower.
-Moreover, the algorithm is essentially suited
-to linear colour scales (due to fixed thresholds); and not suitable to high
-dynamic range images like diffraction patterns or back light images with little
-contrast in dark area.
+device, and is likely to pick the CPU which is slower.
+Moreover, the SIFT algorithm has been developped for linear colour scales and
+has some fixed thresholds in it; making it unsuitable for high dynamic
+range images like diffraction patterns or even some back light images with
+little contrast in dark area.
 % Neverthless, using the difference of gaussian method like in
 % SIFT could be interesting for the extraction of spots for diffraction
 % images.
@@ -577,9 +579,8 @@ contrast in dark area.
 \section{Future and prospects}
 
 SIFT\_PyOCL has been included into the PyMca imaging tool \cite{pymca} in its
-release 4.7 as a plugin for image stack alignment; providing a nice graphical
+release 4.7 as a plugin for image stack alignment; offering a nice graphical
 interface which makes image stack alignment both intuitive and easy to use.
-
 Registration of 3-dimensional objects would have a huge application potential,
 especially in the field of tomography and medical images.
 This field of research is very active in the frame of applied mathematics and
@@ -604,7 +605,7 @@ re-distribution.
 \ack{Acknowledgements}
 
 The author would like to thank the ID21 team, especially the beamline
-responsible, Marine Cotte, Muriel Salomé and Barbara Fayard, who are in charge
+responsible, Marine Cotte, Murielle Salomé and Barbara Fayard, who are in charge
 of developing the full field XAS technique.
 In the instrumentation division (ISDD) we would like to thank Claudio Ferrero,
 head of data analysis unit, and Andy G\"otz, head of software group, for
@@ -613,8 +614,8 @@ V. Armando Solé, the
 author of PyMca, is also acknowledged for providing a graphical interface to
 this library and for all the debuging work he performed, testing it on all
 operating systems.
-The Barnes foundation is also acknowledged for providing the
-painting fragment which was used as example in this article and was originally studied to
+Jennifer Mass and the Barnes foundation are also acknowledged for providing
+the painting fragment which was used as example in this article and was originally studied to
 understand the degradation of cadmium based pigments.
 \bibliographystyle{iucr}
 \bibliography{biblio}
