@@ -30,32 +30,32 @@ a Python-OpenCL implementation of this algorithm.
 \begin{abstract}
 The full-field X-ray absorption spectroscopy experiment allows the acquisition
 of millions of spectra within minutes. 
-However, the building of the hyperspectral image requires an image alignment
+However, the construction of the hyperspectral image requires an image alignment
 procedure with a sub-pixel precision.
-While the phase correlation algorithm has originally been used for image
+While the image correlation algorithm has originally been used for image
 re-alignment using translations, the Scale Invariant Feature Transform (SIFT)
-algorithm, which is by design robust to rotation, illumination change,
-translation and scaling, presents an additional advantage: alignment can be limited to
-a region of interest with any arbitrary shape.
+algorithm (which is by design robust to rotation, illumination change,
+translation and scaling) presents an additional advantage: the alignment can be
+limited to a region of interest with any arbitrary shape.
 In this context, a Python module, named  SIFT\_PyOCL has been developed.
 It implements a parallel version of the SIFT algorithm in OpenCL, providing
-high-speed image registration and alignment both on processors and on graphics cards.
+high-speed image registration and alignment both on processors and graphics cards.
 The performance of the algorithm allows online processing of large datasets.
 
 \end{abstract}
 
 \section{Introduction}
 
-Image alignment is required at many synchrotron beamlines and for
+Image alignment is required by many synchrotron beamlines and for
 various techniques such as speckle images reconstruction in the field of
-coherent X-ray diffraction imaging (CXDI) with module based pixel detectors or image
-stack alignment for full-field X-ray absorption spectroscopy (FFXAS), or
+coherent X-ray diffraction imaging (CXDI), with module based pixel detectors or
+image stack alignment for full-field X-ray absorption spectroscopy (FFXAS), or
 simply to re-position a sample on the experimental stage using visible light.
 
 After a short presentation of the FFXAS
 experimental setup (based on the design of ESRF-ID21), image registration
 algorithms (based on keypoint extraction) will
-be compared to the correlation algorithm through application to an example
+be compared to the correlation algorithms through application to an example
 using FFXAS data collected for historical paintings.
 % be compared to phase correlation algorithm through
 % application on a historical paintings example.
@@ -107,7 +107,7 @@ Image correlation and phase correlation obtained in Fourier space (see eq.
 \ref{eq:imgcor} and \ref{eq:phasecor}) have
 extensively been used during the development of FFXAS for image-stack alignment
 (the second being an optimisation of the first one), however they are
-limited to translation movement and turned out to be very sensitive to artifacts, such as:
+limited to translation movement and turn out to be very sensitive to artifacts, such as
 intensity difference on the image border, defects in the
 scintillator or on the camera\footnote{While those artifacts are weakened by
 the flat-field normalization, they can still remain and disturb the alignment.},
@@ -141,7 +141,7 @@ Feature-based registration methods establish a correspondence between a
 number of especially distinct points in images.
 Those keypoints are not only defined by their spatial position on the image
 ($x$ and $y$), but also associated to the $scale$ of the feature and its
-orientation (or $angle$);
+orientation (or $angle$),
 making keypoints naturally robust to
 translation, rotation and change of scale.
 In addition, each keypoint is associated to a descriptor specific to the
@@ -179,11 +179,11 @@ quality while exhibiting very good robustness against artifacts.
 % (little transmission) with very few characteristic features and some part of the
 % frame with direct beam (like an overexposed back light photograph).
 
-Moreover, the possibility to remove easily keypoints in unwanted regions of
+Moreover, the possibility to easily remove keypoints in unwanted regions of
 the image is a major asset.
 % Regions containing features non characteristic for the sample e.g. scintillator
 % specific features, may be removed, or, vice-versa, keypoints located within the region of interest (with an arbitrary shape) may be selected.
-Regions containing features non characteristic of the sample, e.g. scintillator
+Regions containing non characteristic features of the sample, e.g. scintillator
 specific, may be removed, or, alternatively, keypoints located within the
 region of interest (with an arbitrary shape) may be selected.
 
@@ -211,21 +211,21 @@ The image stack, composed of 346 frames was collected at the K edge of sulfur
 % thin section sampled out on the Matisse painting ??? and embedded in
 % a pentacrylate resin.
 % of a resin-based thin-section
-(15 $\mu m$) of Matisse’s \emph{Flowers in a Pitcher} (1906) fragment, from
-Barnes foundation (accession number 205) analyzed in the framework of studying the
-yellow cadmium pigment degradation in historical paintings.
+(15 $\mu m$) of Matisse’s \emph{Flowers in a Pitcher} (1906) fragment, from the
+Barnes foundation (accession number 205), and analyzed in the framework of
+studying the yellow cadmium pigment degradation in historical paintings.
 
-In this image the brighter top right corner correspond a place where no resin is
-present. Very few scintillator artifacts remain visible after $flat
+In this image the brighter top right corner corresponds to a place where no
+resin is present. Very few scintillator artifacts remain visible after $flat
 field$ normalization.
 % , for example in the resin border, the two darker dots are dust on
 % sample but there is an horizontal scratch on the scintillator just at their
 % left.
 Each arrow on the figure represents a keypoint, as extracted by the SIFT
-algorithm, arrows in red are inside the region of interest (i.e. on the sample)
+algorithm. Arrows in red are inside the region of interest (i.e. on the sample)
 while those in blue are outside this region and
 correspond either to features of the resin (matrix) or to features present on
-the scintillator (which need absolutely to be removed as they do not move
+the scintillator (which absolutely need to be removed as they do not move
 with the sample).
 Here, the size of the arrow is proportional to the scale of the feature
 detected and its direction depends on its orientation, as given by the SIFT algorithm.
@@ -256,7 +256,7 @@ vertical axis to highlight the sample boundaries.
 When the alignment is perfect, maxima (red lines) and minima (blue lines) of
 the derivative are horizontal lines. 
 However in this example, the stack aligned using image correlation presents
-clear bent section.
+clear bent sections.
 Figure \ref{fig:offset} presents the measured offsets with both methods. 
 Offsets in horizontal direction ($\delta x$) agree within an error
 lower than 0.5 pixel which is acceptable for the experiment; but offsets in
@@ -291,7 +291,8 @@ The keypoints are detected in several steps according to Lowe's
 original paper \cite{Lowe99}.
 The scale variation is simulated by blurring the image:
 a very blurred image represents a scene seen from a longer distance, where
-small-scale details are not visible. Feature vanishing at a given scale are
+small-scale details are not visible. 
+Features vanishing at a given scale are
 local maxima when subtracting the next blurred from the current image. Finally
 the keypoint orientation and descriptor are obtained from gradient orientation
 histograms.
@@ -324,7 +325,7 @@ At this stage, many keypoints are not reliable: low-contrast keypoints are
 discarded using a fixed threshold, and many keypoints are located in regions of
 strong gradient of intensity called edges. As keypoints situated on such edges
 can slide along this edge (due to noise for example), they are rejected in
-favour to those staying on corners, more constrained, based on the curvature
+favour of those staying on corners, more constrained, based on the curvature
 of the edge.
 %For keypoints located on an edge, principal curvature across the edge is much
 %larger than the principal curvature along it.
@@ -340,7 +341,7 @@ second-order Taylor development.
 
 \subsubsection{Orientation assignment:}
 In order to make SIFT descriptors invariant to rotation, they are calculated
-relative to the keypoint orientation,
+according to the keypoint orientation,
 % ; which is obtained using the following procedure.
 obtained using the following procedure.
 % The orientation
@@ -379,10 +380,9 @@ single core.
 Although the process is distributed using the EDNA framework \cite{edna} on a
 16-core computer, the performance limits are constraining.
 
-The SIFT algorithm, which is much more complicated than the phase
-correlation algorithm, needed to be parallelized to benefit as well from modern
-largely parallel hardware like graphics cards (GPU) to achieve the required
-data rate.
+The SIFT algorithm (much more complicated than correlation algorithms), needed
+to be parallelized to also benefit from modern largely parallel hardware
+like graphics cards (GPU) to achieve the required data rate.
 
 SIFT\_PyOCL is a Python library implementing this algorithm for GPU
 and other massively parallel computing devices.
@@ -456,7 +456,7 @@ author). For all other use, please contact the university-industry liaison
 office of the University of British Columbia.
 
 Beside Python (version 2.6 or 2.7) and NumPy, SIFT\_PyOCL needs
-PyOpenCL; all of them being available on Windows, Linux and MacOSX.
+PyOpenCL. All of them are available on Windows, Linux and MacOSX.
 It was tested on the OpenCL drivers from Nvidia on a
 large variety of their GPUs (Tesla, Fermi and Kepler generations), on
 accelerator cards like the Intel Xeon Phi,  and on multi-core processors with
@@ -530,9 +530,9 @@ correction to the frame [11], returning the corrected frame (execution time:
 \subsection{Performances}
 
 The SIFT\_PyOCL implementation has been compared with the SIFT
-implementation from \cite{ASIFT} found on the IPOL server (reference
-implementation) on a dual Intel E5-2667 (12 cores, 2.90GHz) with an Nvidia Tesla
-K20m computer, Execution speed are summarized in Table \ref{bench}.
+implementation from ASIFT \cite{ASIFT} found on the IPOL server (reference
+implementation) on a dual Intel E5-2667 (12 cores, 2.90 GHz) with an Nvidia
+Tesla K20m computer. Execution speed are summarized in Table \ref{bench}.
 The acceleration measured on large images (more than 3 mega-pixels) is between
 30 times and 100 times depending on the image complexity on the GPU, and from 4
 times to 10 times when running on multicore-CPU.
@@ -562,13 +562,13 @@ SIFT\_PyOCL  &   Nvidia  &    75 ms  &  5.8 ms & 90 ms\\
 
 \subsection{Limitations}
 While all calculations are performed in single precision floating point,
-which is compatible even with the oldest graphic cards supported by OpenCL, the
-memory consumption has been traded off for performance: to prevent memory
+(which is compatible even with the oldest graphic cards supported by OpenCL) 
+the memory consumption has been traded off for performance: to prevent memory
 allocation on the device at run time (which is very costly), all buffers are
 allocated when the size of the image is given, in advance. If the
 requested device does not have enough memory, the library tries to find another
 device, and is likely to pick the CPU which is slower.
-Moreover, the SIFT algorithm has been developped for linear colour scales and
+Moreover, the SIFT algorithm has been developed for linear colour scales and
 has some fixed thresholds in it; making it unsuitable for high dynamic
 range images like diffraction patterns or even some back light images with
 little contrast in dark area.
@@ -580,7 +580,7 @@ little contrast in dark area.
 \section{Future and prospects}
 
 SIFT\_PyOCL has been included into the PyMca imaging tool \cite{pymca} in its
-release 4.7 as a plugin for image stack alignment; offering a nice graphical
+4.7 release as a plugin for image stack alignment, offering a nice graphical
 interface which makes image stack alignment both intuitive and easy to use.
 Registration of 3-dimensional objects would have a huge application potential,
 especially in the field of tomography and medical images.
@@ -591,7 +591,7 @@ computer vision.
 \section{Conclusion}
 
 The SIFT algorithm is currently used at the ESRF ID21 beamline for full field
-X-Ray absorption spectroscopy image alignment owing to its robustness against
+X-Ray absorption spectroscopy image alignment due to its robustness against
 scale, rotation and illumination changes.
 The SIFT\_PyOCL Python module implements a parallel version of the SIFT
 algorithm running both on graphic cards and on multi-core processors, with
@@ -599,7 +599,7 @@ interesting speed-ups.
 Its programming interface tried to be simple to use and \emph{pythonic} while
 supporting high performance computing ``under the hood''.
 We believe it can be adopted by other software developers as general purpose
-image alignment method; this is why the code was made open-source and free for
+image alignment method, this is why the code was made open-source and free for
 re-distribution.
 
 
