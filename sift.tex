@@ -91,10 +91,11 @@ spectroscopy experiment at ID21, taken from \cite{fullfield}.}
 \end{center}
 \end{figure}
 
-A 3D-XANES stack consists of a series of normalized images that
-characterize the sample absorption across the absorption edge of interest, each pixel of the
-stack containing a full XANES spectrum; after taking the negative logarithm
-of the intensity.
+A 3D-XANES stack consists of a serie of normalized images (radiographs) that
+characterize the sample absorption across the absorption edge of the
+element of interest.
+After taking the negative logarithm of all transmission intensities, each
+pixel of the stack contains a full XANES spectrum. 
 %The energy resolution of the XANES spectrum depends on the
 %number of frames in the stack and on the energy steps of the monochromator.
 The energy resolution of the XANES spectrum depends on the number of frames in
@@ -369,12 +370,12 @@ illumination, translation and scaling.
 
 \section{Implementation}
 
-While correlation algorithms have been easily ported on
-graphics card thanks to PyCUDA \cite{pyopencl} and cuFFT, and hence is very fast and well
-suited for online data pre-processing;
-the SIFT implementation used at ESRF beamline ID21, based on \cite{ASIFT},
-takes about 8 seconds per 4 mega-pixel frame  (a stack can contain up to  500
-frames) using a single core.
+Correlation algorithms have been easily ported on
+graphics card thanks to PyCUDA \cite{pyopencl} and cuFFT, which makes them very
+fast and well suited for online data pre-processing. Conversely, the SIFT
+implementation used at ESRF beamline ID21, based on \cite{ASIFT}, takes about 8
+seconds per 4 mega-pixel frame  (a stack can contain up to  500 frames) using a
+single core. 
 Although the process is distributed using the EDNA framework \cite{edna} on a
 16-core computer, the performance limits are constraining.
 
