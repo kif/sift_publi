@@ -29,16 +29,16 @@ a Python-OpenCL implementation of this algorithm.
 
 \begin{abstract}
 The full-field X-ray absorption spectroscopy experiment allows the acquisition
-of millions of spectra in minutes. However, it requires an image alignment
-procedure with sub-pixel precision during the building of the
-hyperspectral image.
+of millions of spectra within minutes. 
+However, the building of the hyperspectral image requires an image alignment
+procedure with a sub-pixel precision.
 While the phase correlation algorithm has originally been used for image
 re-alignment using translations, the Scale Invariant Feature Transform (SIFT)
 algorithm, which is by design robust to rotation, illumination change,
 translation and scaling, presents an additional advantage: alignment can be limited to
 a region of interest with any arbitrary shape.
-In this context, a Python module, named  SIFT\_PyOCL has been developed;
-it implements a parallel version of the SIFT algorithm in OpenCL, providing
+In this context, a Python module, named  SIFT\_PyOCL has been developed.
+It implements a parallel version of the SIFT algorithm in OpenCL, providing
 high-speed image registration and alignment both on processors and on graphics cards.
 The performance of the algorithm allows online processing of large datasets.
 
@@ -47,23 +47,22 @@ The performance of the algorithm allows online processing of large datasets.
 \section{Introduction}
 
 Image alignment is required at many synchrotron beamlines and for
-various techniques like speckle images reconstruction in the field of coherent
-X-ray diffraction imaging (CXDI) with module based pixel detectors or image
-stack alignment for full-field X-ray absorption spectroscopy (FFXAS); or
+various techniques such as speckle images reconstruction in the field of
+coherent X-ray diffraction imaging (CXDI) with module based pixel detectors or image
+stack alignment for full-field X-ray absorption spectroscopy (FFXAS), or
 simply to re-position a sample on the experimental stage using visible light.
 
 After a short presentation of the FFXAS
-experimental setup (based on the design of ESRF-ID21) where image alignment is a
-crucial part of the pre-processing, image registration algorithms (based on
-keypoint extraction) will
-be compared to the phase correlation algorithm through application to an example
+experimental setup (based on the design of ESRF-ID21), image registration
+algorithms (based on keypoint extraction) will
+be compared to the correlation algorithm through application to an example
 using FFXAS data collected for historical paintings.
 % be compared to phase correlation algorithm through
 % application on a historical paintings example.
-Finally, SIFT\_PyOCL, the parallel version of the SIFT algorithm we developed
-will be presented; describing some implementation details, how to use it
-with a short tutorial and some benchmark figures in the scope of the data
-pre-processing of the FFXAS experiment.
+Finally, SIFT\_PyOCL, the parallel version of the SIFT algorithm we developed,
+will be presented. In this section, some implementation details will be
+described accompanied by a short tutorial and some benchmark
+figures in the scope of the data pre-processing of the FFXAS experiment.
 
 \section{Full-Field X-ray absorption spectroscopy}
 At the European Synchrotron Radiation Facility (ESRF), the beamline ID21
@@ -77,10 +76,9 @@ For each sample transmission image, a \emph{flat field} image,
 recorded without the sample, is used for normalization of the spatial
 variation of the beam intensity.
 This \emph{flat field} image needs to be acquired at the same energy (to cope
-with the scintillator response) and before the beam drifts, before or
-after the sample is exposed (or both).
-Since the sample has to be moved in and out of the beam for every frame, a
-realignment procedure has to be performed for each of them.
+with the scintillator response), before before and after the sample is exposed.
+Since the sample moves in and out of the beam for every energy step, a
+realignment procedure has to be performed for every frame.
 
 \begin{figure}
 \label{setup}
@@ -168,18 +166,18 @@ of the difference in keypoint positions for all matched keypoints. The median
 turned out to be more reliable than the mean when false-matches were present.
 Knowing the correspondence between a set of keypoints in images, more
 sophisticated transformation patterns like rotation, affine or projective
-transformation can be envisaged, after a least-squares fit of the
+transformation can be envisaged after a least-squares fit of the
 transformation parameters on the matched keypoints.
-Stack alignment of FFXAS data as obtained by SIFT using simple translation is
-comparable to phase correlation in terms of quality while exhibiting very good
-robustness against artifacts.
+Stack alignment of FFXAS data obtained by SIFT keypoint extraction and matching 
+using a simple translation is comparable to image correlation in terms of
+quality while exhibiting very good robustness against artifacts.
 % Stack alignment obtained with SIFT after simple translation in FFXAS are
 % comparable in terms of quality to phase correlation while exhibiting very good
 % robustness to artifacts.
-The only counter example where phase correlation gave
-better alignment than SIFT was with a frames where the sample was very dark
-(little transmission) with very few characteristic features and some part of the
-frame with direct beam (like an overexposed back light photograph).
+% The only counter example where phase correlation gave
+% better alignment than SIFT was with a frames where the sample was very dark
+% (little transmission) with very few characteristic features and some part of the
+% frame with direct beam (like an overexposed back light photograph).
 
 Moreover, the possibility to remove easily keypoints in unwanted regions of
 the image is a major asset.
@@ -245,20 +243,21 @@ boundaries, the $y-$derivative of transmission is represented in false colors.}
 \end{figure}
 
 
-The XANES stack alignment using phase correlation has failed in this sample,
+The XANES stack alignment using image correlation has failed in this sample,
 maybe due to the strong change in intensity on the resin borders, forcing an
-alignment on this line. An evidence of this poor alignement (at the pixel
+alignment on this line. An evidence of this poor alignment (at the pixel
 level) is given in figure \ref{fig:alignment} which is a vertical section of the
-3D XANES map: the sample is cut at $x=500$ and $y\in[490, 580]$ (picture
-coordinates of figure \ref{fig:sample}) and the frame number\footnote{The 
+3D XANES map: the sample is cut vertically at $x=500$ and $y\in[490, 580]$
+(picture coordinates of figure \ref{fig:sample}) and the frame number\footnote{The 
 horizontal axis is not given as energy because energy steps were not
 constant in this scan.} is used as horizontal axis.
-To check the alignement, the transission signal has been derived along the
+To check the alignment, the transmission signal has been derived along the
 vertical axis to highlight the sample boundaries.
 When the alignment is perfect, maxima (red lines) and minima (blue lines) of
-the derivative are horizontal lines; and this is not the case
-for this sample using correlation method. Figure \ref{fig:offset}
-presents the measured offsets with both methods. 
+the derivative are horizontal lines. 
+However in this example, the stack aligned using image correlation presents
+clear bent section.
+Figure \ref{fig:offset} presents the measured offsets with both methods. 
 Offsets in horizontal direction ($\delta x$) agree within an error
 lower than 0.5 pixel which is acceptable for the experiment; but offsets in
 vertical direction ($\delta y$) differ sometimes by up to 2 pixels. While
@@ -269,8 +268,8 @@ displacement.
 \label{fig:offset}
 \begin{center}
 \includegraphics[width=15cm]{offset.eps}
-\caption{Offset in $x$ and $y$ measured using phase correlation and SIFT
-procedure \emph{versus} frame 11.}
+\caption{Offset along $x$ and $y$ axes measured using image correlation and
+SIFT procedure. All frames were aligned on frame 11.}
 \end{center}
 \end{figure}
 
@@ -341,8 +340,9 @@ second-order Taylor development.
 
 \subsubsection{Orientation assignment:}
 In order to make SIFT descriptors invariant to rotation, they are calculated
-relative to the keypoint orientation; which is obtained using the following
-procedure.
+relative to the keypoint orientation,
+% ; which is obtained using the following procedure.
+obtained using the following procedure.
 % The orientation
 % of each keypoint is calculated so that SIFT descriptors can be invariant to rotation.
 For each blurred version of the image, the gradient magnitude and orientation
@@ -350,8 +350,8 @@ are computed.
 From the neighborhood of a keypoint, a histogram of orientations is built (36
 bins, 1 bin per 10 degrees).
 %\pic{0.7}{img/orientation.png}{Orientation assignment}
-The maximum value of this histogram is the dominant orientation; it is defined
-as the characteristic orientation of the keypoint.
+The maximum value of this histogram is the dominant orientation which 
+defines the characteristic orientation of the keypoint.
 Additionally, every peak greater than 80\% of the maximum generates a new
 keypoint with a different orientation.
 
@@ -615,7 +615,7 @@ V. Armando Solé, the
 author of PyMca, is also acknowledged for providing a graphical interface to
 this library and for all the debugging work he performed, testing it on all
 operating systems.
-Jennifer Mass and the Barnes foundation are also acknowledged for providing
+The Barnes foundation and Jennifer Mass are also acknowledged for providing
 the painting fragment which was used as example in this article and was originally studied to
 understand the degradation of cadmium based pigments.
 \bibliographystyle{iucr}
