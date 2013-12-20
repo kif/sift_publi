@@ -245,7 +245,7 @@ method (upper frame) with the SIFT method (lower frame). All frames are aligned
 on frame 11. The figure is a vertical slice through the sample of figure
 \ref{fig:sample} at $x=500$ through all frames. To highlight the sample
 boundaries, the $y-$derivative of the transmission function is represented in
-false colors.}
+false colours.}
 \end{center}
 \end{figure}
 
@@ -499,10 +499,10 @@ In [5]: kp1 = siftplan.keypoints(img1)
 
 After having imported the FabIO \cite{fabio} module in [1], a first
 absorption image is read in [2]. The SIFT\_PyOCL library is loaded in [3] and the
-GPU is initialized in [4] with all memory allocated on the device (depending on
-the image size).
+GPU is initialized in [4] with the whole needed memory allocated on the
+device (depending on the image size).
 In [4], the keypoint extraction takes 60 ms for a
-4 megapixels image and returns a 261 keypoints vector as a numpy array named
+4 megapixel image and returns a 261 keypoints vector as a numpy array named
 \emph{kp1} (depending on the image).
 %This figure varies a lot from sample to sample.
 
@@ -515,8 +515,8 @@ In [9]: m = matchplan.match(kp1,kp2)
 \end{verbatim}
 A second image is read [6] and its keypoints are extracted [7].
 In [8], a matching object is created, targeted to run on a graphic card.
-Keypoint association is done in [9], returning a numpy array of 66 lines and 2
-columns of matched keypoints (execution time: 2.7 ms), each keypoint having
+Keypoint association is performed in [9], returning a numpy array of 66
+lines and 2 columns of matched keypoints (execution time: 2.7 ms), each keypoint having
 attributes $x$, $y$, $scale$ and $angle$ in addition to the 128-byte descriptor.
 
 \subsubsection{Align an image on a reference}
@@ -529,28 +529,29 @@ affine transformation: combination of translation, rotation, homothety,
 reflection, etc.
 An \emph{aligner} object is defined in [10] by instantiating the
 \emph{LinearAlign} class from a reference image and the device type.
-This \emph{aligner} contains keypoints of the
-reference, a \emph{SiftPlan} and a \emph{MatchPlan} object plus the least square
-refinement and bi-linear interpolation kernel.
+The \emph{aligner} contains keypoints of the
+reference, a \emph{SiftPlan} and a \emph{MatchPlan} object plus the
+least-squares refinement and a bi-linear interpolation kernel. 
 The \emph{align} method performs keypoint extraction, matching, least-square
-optimization of the affine transformation coefficients and finally applies the
-correction to the frame [11], returning the corrected frame (execution time:
-75 ms, all timing were measured on a Nvidia GeForce Titan GPU).
+optimization of the affine transformation coefficients and eventually applies
+the correction to the frame [11] by returning the corrected frame (execution
+time: 75 ms, all timings were measured on a Nvidia GeForce Titan GPU).
 
 \subsection{Performances}
 
 The SIFT\_PyOCL implementation has been compared with the SIFT
 implementation from ASIFT \cite{ASIFT} found on the IPOL server (reference
-implementation) on a dual Intel E5-2667 (12 cores, 2.90 GHz) with an Nvidia
-Tesla K20m computer. Execution speed are summarized in Table \ref{bench}.
+implementation, single threaded) on a dual Intel E5-2667 (12 cores, 2.90 GHz)
+computer with an Nvidia Tesla K20m GPU. Execution speeds are summarized in Table
+\ref{bench}.
 The acceleration measured on large images (more than 3 mega-pixels) is between
-30 times and 100 times depending on the image complexity on the GPU, and from 4
-times to 10 times when running on multicore-CPU.
-Largest speed-ups have been obtained on large images thanks to the
-great acceleration of Gaussian blurring.
+30 and 100 times (on a GPU), depending on the image complexity, and
+from 4 to 10 times when running on a multicore CPU.
+The most considerable speed-ups have been obtained on large images
+thanks to the massive acceleration of the Gaussian blurring.
 
 \begin{table}
-\caption{Execution time for typical FFXAS images ($2560 \times 2160$) using
+\caption{Execution times for typical FFXAS images ($2560 \times 2160$) using
 different implementations on a dual Intel E5-2667 (12 cores, 2.90GHz) with an Nvidia Tesla
 K20m.}
 \label{bench}
@@ -571,46 +572,47 @@ SIFT\_PyOCL  &   Nvidia  &    75 ms  &  5.8 ms & 90 ms\\
 
 
 \subsection{Limitations}
-While all calculations are performed in single precision floating point,
-(which is compatible even with the oldest graphic cards supported by OpenCL)
+While all calculations are performed in single precision floating point
+(which is compatible even with the oldest graphic cards supported by OpenCL),
 the memory consumption has been traded off for performance: to prevent memory
 allocation on the device at run time (which is very costly), all buffers are
-allocated when the size of the image is given, in advance. If the
-requested device does not have enough memory, the library tries to find another
-device, and is likely to pick the CPU which is slower.
+allocated when the size of the image is given (at the plan creation). 
+If the requested device does not have enough memory, the library tries to find
+another device, and is likely to pick the CPU which is slower.
 Moreover, the SIFT algorithm has been developed for linear colour scales and
-has some fixed thresholds in it; making it unsuitable for high dynamic
-range images like diffraction patterns or even some back light images with
-little contrast in dark area.
+has some fixed built-in thresholds; making it unsuitable for high dynamic
+range images like diffraction patterns or even some back-light images with
+little contrast in dark areas.
 % Neverthless, using the difference of gaussian method like in
 % SIFT could be interesting for the extraction of spots for diffraction
 % images.
 
 
-\section{Future and prospects}
+\section{Future prospects}
 
-SIFT\_PyOCL has been included into the PyMca imaging tool \cite{pymca} in its
-4.7 release as a plugin for image stack alignment, offering a nice graphical
-interface which makes image stack alignment both intuitive and easy to use.
-Registration of 3-dimensional objects would have a huge application potential,
-especially in the field of tomography and medical images.
-This field of research is very active in the frame of applied mathematics and
-computer vision.
+SIFT\_PyOCL has been included into the 4.7 release of the PyMca imaging tool
+\cite{pymca} as a plugin for image stack alignment, offering a user friendly
+graphical interface which makes the image stack alignment both intuitive and
+easy to use.
+Registration of three-dimensional objects has a huge application
+potential, especially in the field of tomography and medical images.
+This field of research is very active and is fostered by the rapid progress in
+applied mathematics and computer vision.
 
 
 \section{Conclusion}
 
-The SIFT algorithm is currently used at the ESRF ID21 beamline for full field
-X-Ray absorption spectroscopy image alignment due to its robustness against
+The SIFT algorithm is currently used at the ID21 beamline of the ESRF for full
+field X-Ray absorption spectroscopy image alignment due to its robustness against
 scale, rotation and illumination changes.
 The SIFT\_PyOCL Python module implements a parallel version of the SIFT
 algorithm running both on graphic cards and on multi-core processors, with
-interesting speed-ups.
-Its programming interface tried to be simple to use and \emph{pythonic} while
+appealing speed-ups.
+Its programming interface tries to be simple to use and \emph{pythonic} while
 supporting high performance computing ``under the hood''.
-We believe it can be adopted by other software developers as general purpose
-image alignment method, this is why the code was made open-source and free for
-re-distribution.
+We believe that it can be adopted by other software developers as a general
+purpose image alignment tool, this is why the code was made open-source and free
+for re-distribution.
 
 
 \ack{Acknowledgements}
@@ -620,14 +622,15 @@ responsible, Marine Cotte, Murielle Salomé and Barbara Fayard, who are in charg
 of developing the full field XAS technique.
 In the instrumentation division (ISDD) we would like to thank Claudio Ferrero,
 head of data analysis unit, and Andy G\"otz, head of software group, for
-supporting the parallelization work on this algorithm.
+supporting the parallelization work on the presented algorithm.
 V. Armando Solé, the
 author of PyMca, is also acknowledged for providing a graphical interface to
-this library and for all the debugging work he performed, testing it on all
-operating systems.
+the SIFT\_PyOCL library and for all the debugging work he performed, testing
+it on all operating systems.
 The Barnes foundation and Jennifer Mass are also acknowledged for providing
-the painting fragment which was used as example in this article and was originally studied to
-understand the degradation of cadmium based pigments.
+the painting fragment which was used as an example in this work and was
+originally studied to understand the degradation mechanisms of cadmium based
+pigments.
 \bibliographystyle{iucr}
 \bibliography{biblio}
 %\referencelist[biblio]
